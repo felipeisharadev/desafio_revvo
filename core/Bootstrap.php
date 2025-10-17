@@ -23,6 +23,19 @@ final class Bootstrap
             return;
         }
 
+        if ($router === 'cursos') {
+            require_once __DIR__ . '/../controllers/CursoController.php';
+            $c = new CursoController();
+            switch ($action) {
+                case 'list':   $c->list();   break;
+                case 'create': $c->create(); break;
+                case 'edit':   $c->edit();   break;
+                case 'delete': $c->delete(); break;
+                default:       $c->list();   break;
+            }
+            return;
+        }
+
         http_response_code(404);
         echo 'Rota não encontrada.';
     }
