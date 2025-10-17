@@ -1,7 +1,4 @@
-<?php
-// views/cursos/index.php — listagem de cursos
-// Espera variável $cursos (array) vinda do controller
-?>
+<?php // Espera $cursos ?>
 <section>
   <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
     <h1>Cursos</h1>
@@ -15,9 +12,10 @@
       <thead>
         <tr>
           <th>Imagem</th>
-          <th>Título</th>
+          <th>Nome</th>
           <th>Carga</th>
-          <th>Ações</th>
+          <th>Link</th>
+          <th style="width:160px">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -25,13 +23,16 @@
         <tr>
           <td>
             <?php if (!empty($c['imagem'])): ?>
-              <img src="/uploads/cursos/<?= View::e($c['imagem']) ?>" alt="<?= View::e($c['nome']) ?>" width="64">
-            <?php else: ?>
-              —
-            <?php endif; ?>
+              <img src="/uploads/cursos/<?= View::e($c['imagem']) ?>" alt="" width="64">
+            <?php else: ?> — <?php endif; ?>
           </td>
           <td><?= View::e($c['nome']) ?></td>
           <td><?= (int)$c['carga_horaria'] ?>h</td>
+          <td>
+            <?php if (!empty($c['link'])): ?>
+              <a href="<?= View::e($c['link']) ?>" target="_blank" rel="noopener">abrir</a>
+            <?php else: ?> — <?php endif; ?>
+          </td>
           <td>
             <a href="/?r=cursos&action=edit&id=<?= (int)$c['id'] ?>">Editar</a>
             &nbsp;|&nbsp;
