@@ -16,15 +16,14 @@ if (file_exists($path)) {
 $pdo = new PDO('sqlite:' . $path);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Tabela cursos: campos suficientes para grid e slideshow a partir de cursos
 $pdo->exec("
 CREATE TABLE cursos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nome TEXT NOT NULL,
   descricao TEXT,
   carga_horaria INTEGER NOT NULL DEFAULT 0,
-  imagem TEXT,            -- nome do arquivo salvo em /public/uploads/cursos
-  link TEXT,              -- URL do botão do card/slide
+  imagem TEXT,           
+  link TEXT,              
   criado_em TEXT DEFAULT CURRENT_TIMESTAMP
 );
 ");
