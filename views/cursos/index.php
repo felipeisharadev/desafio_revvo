@@ -1,49 +1,40 @@
-<?php // Espera $cursos ?>
-<section>
-  <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-    <h1>Cursos</h1>
-    <a class="btn" href="/?r=cursos&action=create">Novo curso</a>
-  </header>
+<?php
+// views/curso/index.php
+// Recebe $title e $cursos (array de cursos)
 
-  <?php if (empty($cursos)): ?>
-    <p>Nenhum curso cadastrado.</p>
-  <?php else: ?>
+use App\Infrastructure\SimpleViewRenderer as Renderer;
+
+$titulo = $title ?? 'Lista dsadasde Cursos';
+?>
+
+<h2><?php echo Renderer::e($titulo); ?></h2>
+
+<p><a href="/cursos/novo" class="button button-small">Adicionar Novo Curso</a></p>
+
+<?php if (empty($cursos)): ?>
+    <p>Nenhum curso cadastrado. Adicione um novo!</p>
+<?php else: ?>
     <table>
-      <thead>
-        <tr>
-          <th>Imagem</th>
-          <th>Nome</th>
-          <th>Carga</th>
-          <th>Link</th>
-          <th style="width:160px">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-      <?php foreach ($cursos as $c): ?>
-        <tr>
-          <td>
-            <?php if (!empty($c['imagem'])): ?>
-              <img src="/uploads/cursos/<?= View::e($c['imagem']) ?>" alt="" width="64">
-            <?php else: ?> — <?php endif; ?>
-          </td>
-          <td><?= View::e($c['nome']) ?></td>
-          <td><?= (int)$c['carga_horaria'] ?>h</td>
-          <td>
-            <?php if (!empty($c['link'])): ?>
-              <a href="<?= View::e($c['link']) ?>" target="_blank" rel="noopener">abrir</a>
-            <?php else: ?> — <?php endif; ?>
-          </td>
-          <td>
-            <a href="/?r=cursos&action=edit&id=<?= (int)$c['id'] ?>">Editar</a>
-            &nbsp;|&nbsp;
-            <form style="display:inline" method="post" action="/?r=cursos&action=delete" onsubmit="return confirm('Excluir?');">
-              <input type="hidden" name="id" value="<?= (int)$c['id'] ?>">
-              <button type="submit" class="btn">Excluir</button>
-            </form>
-          </td>
-        </tr>
-      <?php endforeach; ?>
-      </tbody>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Carga Horária</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($cursos as $curso): ?>
+                <tr>
+                    <td><?php echo Renderer::e($curso['id']); ?></td>
+                    <td><?php echo Renderer::e($curso['nome']); ?></td>
+                    <td><?php echo Renderer::e($curso['carga_horaria']) . 'h'; ?></td>
+                    <td>
+                        <a href="/cursos/<?php echo Renderer::e($curso['id']); ?>/visualizar" class="button button-small">Ver</a>
+                        <a href="/cursos/<?php echo Renderer::e($curso['id']); ?>/editar" class="button button-small">Editar</a>
+                        </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
     </table>
-  <?php endif; ?>
-</section>
+<?php endif; ?>

@@ -1,18 +1,16 @@
 <?php
-declare(strict_types=1);
+define('ROOT_PATH', dirname(__DIR__));
+require_once ROOT_PATH . '/vendor/autoload.php';
 
-// public/index.php — único "index" executável pelo navegador
+use App\Core\Bootstrap;
+use App\Core\Request;
 
-// Núcleo mínimo
-require __DIR__ . '/../core/Database.php';
-require __DIR__ . '/../core/View.php';
-require __DIR__ . '/../core/Bootstrap.php';
+try {
+    $app = (new Bootstrap())->start(); 
+    $response = $app->handle(new Request($_SERVER, $_GET, $_POST)); 
+    echo $response;
 
-// Roteamento simples por query string:
-//   /?r=home
-//   /?r=cursos&action=list
-$router = $_GET['r']      ?? 'home';
-$action = $_GET['action'] ?? 'index';
-
-// Despacha para a rota
-Bootstrap::dispatch($router, $action);
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo "<h1>Erro Crítico do Sistema.</h1><p>Detalhes: " . $e->getMessage() . "</p>";
+}

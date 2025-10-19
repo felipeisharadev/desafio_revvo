@@ -1,31 +1,23 @@
-<?php $error = $error ?? null; ?>
-<section>
-  <h1>Novo curso</h1>
-  <?php if ($error): ?><p style="color:#b00"><?= View::e($error) ?></p><?php endif; ?>
+<?php
+// views/curso/create.php
+// Recebe $title
 
-  <form method="post" enctype="multipart/form-data" action="/?r=cursos&action=create">
-    <div>
-      <label>Nome*</label><br>
-      <input type="text" name="nome" required>
-    </div>
-    <div>
-      <label>Descrição</label><br>
-      <textarea name="descricao" rows="4"></textarea>
-    </div>
-    <div>
-      <label>Carga horária (h)*</label><br>
-      <input type="number" name="carga_horaria" min="0" required>
-    </div>
-    <div>
-      <label>Link (opcional)</label><br>
-      <input type="url" name="link" placeholder="https://exemplo.com/curso">
-    </div>
-    <div>
-      <label>Imagem (jpg, png, gif, webp — até 2MB)</label><br>
-      <input type="file" name="imagem" accept=".jpg,.jpeg,.png,.gif,.webp">
-    </div>
-    <br>
-    <button class="btn" type="submit">Salvar</button>
-    <a href="/?r=cursos&action=list">Cancelar</a>
-  </form>
-</section>
+use App\Infrastructure\SimpleViewRenderer as Renderer;
+?>
+
+<h2><?php echo Renderer::e($title ?? 'Criar Novo Curso'); ?></h2>
+
+<form method="POST" action="/cursos">
+    <fieldset>
+        <label for="nome">Nome do Curso</label>
+        <input type="text" placeholder="Ex: PHP com DI" name="nome" id="nome" required>
+
+        <label for="descricao">Descrição</label>
+        <textarea name="descricao" id="descricao"></textarea>
+
+        <label for="carga_horaria">Carga Horária (horas)</label>
+        <input type="number" name="carga_horaria" id="carga_horaria" required>
+        
+        <input class="button-primary" type="submit" value="Salvar Curso">
+    </fieldset>
+</form>
