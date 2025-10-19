@@ -18,19 +18,15 @@ class CursoController
 
     public function index(Request $request): string
     {
-        // 1. CHAMA O NOVO MÉTODO DE LEITURA (query)
         $cursos = $this->db->query("SELECT * FROM cursos ORDER BY id DESC"); 
         
-        // --- INÍCIO DA LINHA DE DEBUG TEMPORÁRIA ---
-        // Verificamos se o array está vazio e o que a query retornou.
         if (empty($cursos)) {
             error_log("DEBUG: A consulta 'SELECT * FROM cursos' retornou 0 resultados.");
             error_log("DEBUG: Tabela de cursos pode estar vazia ou a query falhou silenciosamente.");
         } else {
             error_log("DEBUG: Consulta retornou " . count($cursos) . " cursos.");
-            // Opcional: print_r($cursos); para ver o conteúdo
+          
         }
-        // --- FIM DA LINHA DE DEBUG TEMPORÁRIA ---
         
         return $this->renderer->render('cursos/index', [
             'title' => 'Lista de Cursos',

@@ -19,7 +19,6 @@ class PDOConnection implements DBConnectionInterface
      */
     public function __construct(array $config)
     {
-        // Define :memory: como fallback
         $dbPath = $config['database_path'] ?? ':memory:'; 
         $dsn = "sqlite:{$dbPath}"; 
 
@@ -30,10 +29,7 @@ class PDOConnection implements DBConnectionInterface
         ];
 
         try {
-            // Conexão
             $this->connection = new PDO($dsn, null, null, $options); 
-            
-            // ATIVAR FOREIGN KEYS (MUITO IMPORTANTE para SQLite)
             $this->connection->exec('PRAGMA foreign_keys = ON;'); 
 
         } catch (PDOException $e) {
@@ -53,21 +49,13 @@ class PDOConnection implements DBConnectionInterface
         return $this->connection;
     }
 
-    /**
-     * Implementa query() para SELECT (retorna array).
-     */
     public function query(string $sql, array $params = []): array
     {
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute($params);
-        
-        // FORÇAR O FETCH_ASSOC aqui para garantir que o array seja associativo.
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Implementa exec() para INSERT/UPDATE/DELETE (retorna int linhas afetadas).
-     */
     public function exec(string $sql, array $params = []): int
     {
         $stmt = $this->getConnection()->prepare($sql);
@@ -75,9 +63,6 @@ class PDOConnection implements DBConnectionInterface
         return $stmt->rowCount();
     }
     
-    /**
-     * Implementa lastInsertId().
-     */
     public function lastInsertId(): int|string
     {
         return $this->getConnection()->lastInsertId();
