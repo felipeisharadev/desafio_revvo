@@ -1,0 +1,72 @@
+@use '../variables' as var;
+
+.course-card {
+    background-color: #FFFFFF;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    .card-image-wrapper {
+        height: 10rem;
+        width: 100%;
+        background-color: var.$color-border;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    // Tag NOVO (do anexo)
+    .tag-new {
+        position: absolute;
+        top: 0; 
+        right: 0;
+        background-color: #FFC107; /* Amarelo */
+        color: #FFFFFF;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.25rem 0.5rem;
+        z-index: 10;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 75%); /* Simplesmente um retângulo */
+    }
+
+    .card-body {
+        padding: 1rem;
+        flex-grow: 1; /* Para empurrar o botão para baixo */
+
+        .course-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var.$color-text;
+        }
+
+        .course-description {
+            color: var.$color-text-light;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+    }
+}
+
+.card-link {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background-color: var.$color-primary;
+    color: #FFFFFF;
+    font-weight: 700;
+    padding: 0.75rem 0;
+    transition: background-color 0.3s;
+
+    &:hover {
+        background-color: var.$color-secondary;
+    }
+}

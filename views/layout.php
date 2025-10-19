@@ -1,43 +1,59 @@
-<?php
-// views/layout.php
-// A variável $title e $viewFile são extraídas da função render()
-
-// Garante que a função 'e' de escape está acessível
-use App\Infrastructure\SimpleViewRenderer;
-?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title><?php echo SimpleViewRenderer::e($title ?? 'CRUD de Cursos'); ?></title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
-    <style>
-        body { margin-top: 20px; }
-        .container { max-width: 900px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio Revvo Cursos</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Gerenciamento de Cursos</h1>
-            <nav>
-                <a href="/">Listar Cursos</a> | 
-                <a href="/cursos/novo">Novo Curso</a>
-            </nav>
-            <hr>
-        </header>
+    
+    <header class="header">
+        <div class="header-content container">
+            <a href="/" class="logo">LEO</a> <nav class="main-nav">
+                </nav>
 
-        <main>
-            <?php 
-                // A variável $viewFile aponta para a view específica (ex: curso/index.php)
-                require $viewFile; 
-            ?>
-        </main>
+            <div class="user-profile">
+                <form action="#" method="get" class="search-form">
+                    <input type="text" placeholder="Pesquisar cursos..." class="search-input">
+                    <button type="submit" class="search-button">Q</button>
+                </form>
+                <span>Olá, John Doe</span>
+                </div>
+        </div>
+    </header>
 
-        <footer>
-            <hr>
-            <p>&copy; <?php echo date('Y'); ?> Desafio Revvo - MVC</p>
-        </footer>
-    </div>
+    <main>
+        <?php require $viewFile; ?>
+    </main>
+    
+    <footer class="footer">
+        <div class="footer-content container">
+            <div class="footer-logo">
+                <a href="/" class="logo">LEO</a>
+                <p>Maecenas facilisis mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4># CONTATO</h4>
+                <p>(21) 98765-5432</p>
+                <p>contato@leolearning.com</p>
+            </div>
+
+            <div class="footer-section">
+                <h4># REDES SOCIAIS</h4>
+                <div class="social-icons">
+                    <a href="#">T</a> <a href="#">Y</a> <a href="#">P</a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>Copyright 2017 - All rights reserved.</p>
+        </div>
+    </footer>
+
 </body>
 </html>

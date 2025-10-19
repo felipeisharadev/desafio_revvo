@@ -1,0 +1,15 @@
+/* Arquivo principal (Entry Point) */
+
+// 1. Configurações e Variáveis
+@use 'variables'; 
+
+// 2. Estilos base e utilitários
+@use 'base';
+
+// 3. Estilos de Layout
+@use 'layouts/home';
+
+// 4. Estilos de Componentes
+@use 'components/header';
+@use 'components/course_card';
+@use 'components/add_button';

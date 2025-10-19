@@ -9,7 +9,7 @@ use Exception;
 
 class PDOConnection implements DBConnectionInterface
 {
-    // Tornamos a propriedade pública para poder acessá-la diretamente, mas a boa prática é usar o getter
+    // Usaremos $connection para ser mais descritivo
     private ?PDO $connection = null; 
 
     /**
@@ -19,24 +19,24 @@ class PDOConnection implements DBConnectionInterface
      */
     public function __construct(array $config)
     {
+        // Define :memory: como fallback
         $dbPath = $config['database_path'] ?? ':memory:'; 
         $dsn = "sqlite:{$dbPath}"; 
 
         $options = [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, 
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,      
-            PDO::ATTR_EMULATE_PREPARES   => false,                 
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, 
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
         ];
 
         try {
-            // Conexão direta. Para SQLite, user e pass são null
+            // Conexão
             $this->connection = new PDO($dsn, null, null, $options); 
             
             // ATIVAR FOREIGN KEYS (MUITO IMPORTANTE para SQLite)
             $this->connection->exec('PRAGMA foreign_keys = ON;'); 
 
         } catch (PDOException $e) {
-            // O erro 'could not find driver' ocorrerá aqui se o pdo_sqlite não estiver ativo.
             throw new Exception("Erro de conexão com o Banco de Dados: " . $e->getMessage());
         }
     }
@@ -60,7 +60,9 @@ class PDOConnection implements DBConnectionInterface
     {
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll();
+        
+        // FORÇAR O FETCH_ASSOC aqui para garantir que o array seja associativo.
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**

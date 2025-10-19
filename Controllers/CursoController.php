@@ -1,33 +1,36 @@
 <?php
-// Controllers/CursoController.php
 namespace App\Controllers;
 
 use App\Contracts\DBConnectionInterface;
 use App\Contracts\ViewRendererInterface;
-use App\Core\Request; // Para receber dados de requisição
+use App\Core\Request; 
 
 class CursoController
 {
     private DBConnectionInterface $db;
     private ViewRendererInterface $renderer;
 
-    // Injeção de Dependência via Construtor
-// Controllers/CursoController.php
     public function __construct(DBConnectionInterface $db, ViewRendererInterface $renderer) // <--- ESPERA 2 ARGUMENTOS
     {
         $this->db = $db;
         $this->renderer = $renderer;
     }
 
-    /**
-     * GET / - Lista todos os cursos.
-     */
     public function index(Request $request): string
     {
-        // ANTES: $cursos = $this->db->execute("SELECT * FROM cursos ORDER BY id DESC");
-        
-        // AGORA: Usamos query() para SELECT
+        // 1. CHAMA O NOVO MÉTODO DE LEITURA (query)
         $cursos = $this->db->query("SELECT * FROM cursos ORDER BY id DESC"); 
+        
+        // --- INÍCIO DA LINHA DE DEBUG TEMPORÁRIA ---
+        // Verificamos se o array está vazio e o que a query retornou.
+        if (empty($cursos)) {
+            error_log("DEBUG: A consulta 'SELECT * FROM cursos' retornou 0 resultados.");
+            error_log("DEBUG: Tabela de cursos pode estar vazia ou a query falhou silenciosamente.");
+        } else {
+            error_log("DEBUG: Consulta retornou " . count($cursos) . " cursos.");
+            // Opcional: print_r($cursos); para ver o conteúdo
+        }
+        // --- FIM DA LINHA DE DEBUG TEMPORÁRIA ---
         
         return $this->renderer->render('cursos/index', [
             'title' => 'Lista de Cursos',
@@ -35,9 +38,6 @@ class CursoController
         ]);
     }
 
-    /**
-     * GET /cursos/novo - Mostra o formulário de criação.
-     */
     public function create(): string
     {
         return $this->renderer->render('cursos/create', [
@@ -45,11 +45,6 @@ class CursoController
         ]);
     }
 
-    /**
-     * POST /cursos - Processa a criação de um novo curso.
-     * * NOTA: Este é um exemplo. Em produção, você precisa de validação de dados
-     * e um mecanismo de redirecionamento.
-     */
     public function store(Request $request): string
     {
         $data = $request->body; 
@@ -72,15 +67,13 @@ class CursoController
     
     public function show(Request $request): string
     {
-        // Aqui precisaríamos de um roteador que extraia o ID da URI.
-        // Por simplicidade, vamos assumir que o ID é 1 para este esqueleto.
         $id = 1; 
 
         $curso = $this->db->execute("SELECT * FROM cursos WHERE id = :id", ['id' => $id]);
         
         return $this->renderer->render('cursos/show', [
             'title' => 'Visualizar Curso',
-            'curso' => $curso[0] ?? [] // Pega o primeiro resultado ou um array vazio
+            'curso' => $curso[0] ?? [] 
         ]);
     }
 

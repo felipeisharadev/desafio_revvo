@@ -1,41 +1,67 @@
 <?php
-// infrastructure/SimpleViewRenderer.php
+// Infrastructure/SimpleViewRenderer.php
 namespace App\Infrastructure;
 
 use App\Contracts\ViewRendererInterface;
+use Exception;
 
 class SimpleViewRenderer implements ViewRendererInterface
 {
-    private string $viewPath;
+    protected string $basePath;
 
-    // O caminho base das views (../views/) é injetado, não hardcoded.
     public function __construct(string $basePath)
     {
-        $this->viewPath = $basePath;
+        // Garante que o caminho base das views termine com /
+        $this->basePath = rtrim($basePath, '/') . '/';
     }
 
-    public function render(string $view, array $data = []): string
+    /**
+     * @param string $viewName O nome da view, e.g., 'curso/index'.
+     * @param array $viewData Dados a serem passados para a view.
+     * @return string O HTML renderizado.
+     */
+    public function render(string $viewName, array $viewData = []): string
     {
-        // 1. Inicia o buffer de saída (captura o conteúdo do require)
+        // 1. Sanitiza o nome da view para evitar ataque de Directory Traversal (../..)
+        $sanitizedViewName = $this->sanitizeViewName($viewName);
+        $viewFile = $this->basePath . $sanitizedViewName . '.php';
+        
+        // 2. Verifica se a view específica existe
+        if (!file_exists($viewFile)) {
+            throw new Exception("View file not found: " . $viewFile);
+        }
+
+        // 3. Define o arquivo de layout principal
+        $layoutFile = $this->basePath . 'layout.php';
+        if (!file_exists($layoutFile)) {
+            throw new Exception("Layout file not found: " . $layoutFile);
+        }
+
+        // --- INÍCIO DA RENDERIZAÇÃO E BUFFERIZAÇÃO ---
+        
+        // As variáveis disponíveis no layout e na view serão: $viewFile e $viewData.
+        // O $layoutFile será incluído no escopo atual.
+        
+        // 4. Inicia o buffer de saída
         ob_start();
         
-        extract($data, EXTR_SKIP);
-        $cleanViewName = str_replace(['..', './', '\\'], '', $viewName);
-        $viewFile = $this->viewPath . '/' . $view . '.php';
-
-        if (!is_file($viewFile)) {
-            throw new \RuntimeException("View não encontrada: {$viewFile}");
-        }
+        // 5. Inclui o arquivo de layout.
+        // O layout precisa de $viewFile (o arquivo específico) e $viewData (os dados).
+        // Estas variáveis são criadas no escopo local ANTES de incluir o layout.
+        require $layoutFile; 
         
-        // Carrega o layout, que deve incluir o conteúdo da view ($viewFile)
-        require $this->viewPath . '/layout.php'; 
+        // 6. Captura o conteúdo do buffer e limpa
+        $output = ob_get_clean();
         
-        // 2. Retorna o conteúdo do buffer (em vez de 'void'/'exit')
-        return ob_get_clean();
+        return $output;
     }
-
-    public static function e(string $v): string
+    
+    /**
+     * Garante que o nome da view não tente acessar pastas fora do diretório base.
+     */
+    protected function sanitizeViewName(string $viewName): string
     {
-        return htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+        // Remove quaisquer sequências de '..' ou caminhos inválidos
+        return str_replace(['..', '//'], ['', '/'], $viewName);
     }
 }
