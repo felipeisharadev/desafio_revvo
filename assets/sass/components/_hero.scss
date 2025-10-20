@@ -1,0 +1,91 @@
+@use '../variables' as var;
+
+/* Hero full-bleed (preenche a viewport na largura) */
+.hero {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  position: relative;
+  background: #111; /* fallback enquanto carrega a imagem */
+}
+
+/* altura do banner conforme layout */
+.hero__viewport {
+  height: 24rem;
+
+  @media (min-width: var.$md) {
+    height: 28rem;
+  }
+  @media (min-width: var.$lg) {
+    height: 32rem;
+  }
+}
+
+/* imagem cobre tudo */
+.hero__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* overlay com texto/CTA */
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  color: #fff;
+
+  .hero__content {
+    /* alinha com o grid do site */
+    width: 100%;
+  }
+
+  .hero__box {
+    max-width: 28rem;
+    background: rgba(0,0,0,0.45);
+    padding: 1.5rem;
+    border-radius: 4px;
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: .75rem;
+    line-height: 1.2;
+  }
+
+  p {
+    font-size: .95rem;
+    margin-bottom: 1rem;
+    color: #e8e8e8;
+  }
+
+  .hero__cta {
+    display: inline-block;
+    background-color: var.$color-primary;
+    color: #fff;
+    font-weight: 700;
+    padding: .75rem 1.25rem;
+    border-radius: 4px;
+    transition: background-color .2s;
+    &:hover { background-color: var.$color-secondary; }
+  }
+}
+
+/* Ajustes dos indicadores e setas do Bootstrap para combinar com o layout */
+.hero .carousel-indicators [data-bs-target] {
+  background-color: #fff;
+  opacity: .6;
+}
+.hero .carousel-indicators .active {
+  opacity: 1;
+}
+
+.hero .carousel-control-prev,
+.hero .carousel-control-next {
+  width: 3rem;
+  @media (max-width: var.$sm) {
+    display: none; /* opcional: esconder setas no mobile */
+  }
+}
