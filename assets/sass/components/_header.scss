@@ -49,3 +49,8 @@
         color: var.$color-text-light;
     }
 }
+
+/* Remover espaço entre header e hero somente na home */
+body.home .header {
+  margin-bottom: 0;
+}

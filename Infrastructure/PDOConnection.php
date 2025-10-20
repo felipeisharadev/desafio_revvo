@@ -2,7 +2,7 @@
 // Infrastructure/PDOConnection.php
 namespace App\Infrastructure;
 
-use App\Contracts\DBConnectionInterface;
+use App\Interfaces\DBConnectionInterface;
 use PDO;
 use PDOException;
 use Exception;

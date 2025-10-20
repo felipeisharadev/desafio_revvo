@@ -1,59 +1,34 @@
 <?php
-// Core/Bootstrap.php
 namespace App\Core;
 
-use App\Contracts\DBConnectionInterface;
-use App\Contracts\RouterInterface;
-use App\Contracts\ViewRendererInterface;
-use App\Infrastructure\PDOConnection; 
-use App\Infrastructure\SimpleRouter; 
+use App\Infrastructure\SimpleRouter;
 use App\Infrastructure\SimpleViewRenderer;
-use Exception;
 
-class Bootstrap
+final class Bootstrap
 {
     public function start(): Application
     {
-        $router = $this->createRouter();
-        $dbConnection = $this->createDatabaseConnection();
-        $viewRenderer = $this->createViewRenderer(); 
-        
-        $app = new Application($router, $dbConnection, $viewRenderer); 
+        // 1) Conexão do banco (global por request)
+        $dbConfig = require ROOT_PATH . '/config/database.php';
+        Database::init($dbConfig);
 
-        return $app;
+        // 2) Infra de Router e View
+        $router = $this->buildRouter();
+        $view   = $this->buildViewRenderer();
+
+        // 3) App pronta
+        return new Application($router, $view);
     }
 
-    protected function createDatabaseConnection(): DBConnectionInterface
-    {
-        $dbConfigFile = ROOT_PATH . '/config/database.php';
-        
-        if (!file_exists($dbConfigFile)) {
-            throw new Exception("Arquivo de configuração do banco de dados não encontrado em: " . $dbConfigFile);
-        }
-        
-        $config = require $dbConfigFile; 
-
-        if (!isset($config['database_path'])) {
-             throw new Exception("Chave 'database_path' ausente no arquivo de configuração do banco de dados.");
-        }
-
-        try {
-            return new PDOConnection($config);
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
-
-    protected function createRouter(): RouterInterface
+    private function buildRouter(): SimpleRouter
     {
         $router = new SimpleRouter();
-        require ROOT_PATH . '/config/routes.php';
+        require ROOT_PATH . '/config/routes.php'; // popula $router
         return $router;
     }
-    
-    protected function createViewRenderer(): ViewRendererInterface
+
+    private function buildViewRenderer(): SimpleViewRenderer
     {
-        $basePath = ROOT_PATH . '/views';
-        return new SimpleViewRenderer($basePath);
+        return new SimpleViewRenderer(ROOT_PATH . '/views');
     }
 }

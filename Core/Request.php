@@ -1,18 +1,20 @@
 <?php
 namespace App\Core;
 
-class Request
+final class Request
 {
-    public readonly string $uri;
-    public readonly string $method;
-    public readonly array $query; 
-    public readonly array $body; 
+    public function __construct(
+        public array  $server,
+        public array  $query,
+        public array  $body
+    ) {}
 
-    public function __construct(array $server, array $get = [], array $post = [])
+    public function __get(string $name): mixed
     {
-        $this->uri = $server['REQUEST_URI'] ?? '/';
-        $this->method = $server['REQUEST_METHOD'] ?? 'GET';
-        $this->query = $get;
-        $this->body = $post;
+        return match ($name) {
+            'uri'    => parse_url($this->server['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/',
+            'method' => strtoupper($this->server['REQUEST_METHOD'] ?? 'GET'),
+            default  => null,
+        };
     }
 }

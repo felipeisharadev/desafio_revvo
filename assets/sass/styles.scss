@@ -10,6 +10,8 @@
 @use 'layouts/home';
 
 // 4. Estilos de Componentes
+/* ... */
 @use 'components/header';
 @use 'components/course_card';
 @use 'components/add_button';
+@use 'components/hero'; /* <-- novo */

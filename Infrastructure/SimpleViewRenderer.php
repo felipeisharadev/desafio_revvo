@@ -2,7 +2,7 @@
 
 namespace App\Infrastructure;
 
-use App\Contracts\ViewRendererInterface;
+use App\Interfaces\ViewRendererInterface;
 use Exception;
 
 class SimpleViewRenderer implements ViewRendererInterface

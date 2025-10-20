@@ -1,76 +1,70 @@
 <?php
+// app/Controllers/CursoController.php
 namespace App\Controllers;
 
-use App\Contracts\DBConnectionInterface;
-use App\Contracts\ViewRendererInterface;
-use App\Core\Request; 
+use App\Interfaces\ViewRendererInterface; // mantenha se você ainda estiver usando a interface
+use App\Core\Database;
+use App\Core\Request;
+use App\Models\Curso;
+use Throwable;
 
 class CursoController
 {
-    private DBConnectionInterface $db;
+    private Curso $curso;
     private ViewRendererInterface $renderer;
 
-    public function __construct(DBConnectionInterface $db, ViewRendererInterface $renderer) // <--- ESPERA 2 ARGUMENTOS
+    public function __construct(ViewRendererInterface $renderer)
     {
-        $this->db = $db;
         $this->renderer = $renderer;
+        $this->curso = new Curso(); // sem passar DB
     }
 
     public function index(Request $request): string
     {
-        $cursos = $this->db->query("SELECT * FROM cursos ORDER BY id DESC"); 
-        
-        if (empty($cursos)) {
-            error_log("DEBUG: A consulta 'SELECT * FROM cursos' retornou 0 resultados.");
-            error_log("DEBUG: Tabela de cursos pode estar vazia ou a query falhou silenciosamente.");
-        } else {
-            error_log("DEBUG: Consulta retornou " . count($cursos) . " cursos.");
-          
-        }
-        
+        $cursos = $this->curso->all();
+
         return $this->renderer->render('cursos/index', [
-            'title' => 'Lista de Cursos',
-            'cursos' => $cursos
+            'title'  => 'Lista de Cursos',
+            'cursos' => $cursos,
         ]);
     }
 
     public function create(): string
     {
         return $this->renderer->render('cursos/create', [
-            'title' => 'Criar Novo Curso'
+            'title' => 'Criar Novo Curso',
         ]);
     }
 
     public function store(Request $request): string
     {
-        $data = $request->body; 
-        
-        $sql = "INSERT INTO cursos (nome, descricao, carga_horaria) VALUES (:nome, :descricao, :carga)";
+        try {
+            Database::beginTransaction();
+            $ultimoId = $this->curso->create($request->body ?? []);
+            Database::commit();
 
-        $linhasAfetadas = $this->db->exec($sql, [
-            'nome' => $data['nome'] ?? '',
-            'descricao' => $data['descricao'] ?? '',
-            'carga' => $data['carga_horaria'] ?? 0 
-        ]); 
-        
-        $ultimoId = $this->db->lastInsertId(); 
-        
-        return $this->renderer->render('debug', [
-            'message' => "Curso salvo com sucesso. Linhas afetadas: {$linhasAfetadas}. ID inserido: {$ultimoId}",
-            'POST_data' => $data 
-        ]); 
+            return $this->renderer->render('debug', [
+                'message'   => "Curso salvo com sucesso. ID inserido: {$ultimoId}",
+                'POST_data' => $request->body ?? [],
+            ]);
+        } catch (Throwable $e) {
+            Database::rollBack();
+            http_response_code(500);
+            return $this->renderer->render('debug', [
+                'message'   => 'Falha ao salvar curso: ' . $e->getMessage(),
+                'POST_data' => $request->body ?? [],
+            ]);
+        }
     }
-    
+
     public function show(Request $request): string
     {
-        $id = 1; 
+        $id = 1;
+        $curso = $this->curso->find($id);
 
-        $curso = $this->db->execute("SELECT * FROM cursos WHERE id = :id", ['id' => $id]);
-        
         return $this->renderer->render('cursos/show', [
             'title' => 'Visualizar Curso',
-            'curso' => $curso[0] ?? [] 
+            'curso' => $curso ?? [],
         ]);
     }
-
 }

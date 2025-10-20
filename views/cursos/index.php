@@ -1,66 +1,73 @@
-<?php 
-$cursos = $viewData['cursos'] ?? []; 
+<?php
+// Body class para remover o espaço do header na home (via SCSS: body.home .header { margin-bottom: 0; })
+$pageClass = 'home';
 
-$banner_image = 'https://placehold.co/1200x400/1F2937/FFFFFF/svg?text=Aprenda+e+Cres%C3%A7a';
-$placeholder_image_url = 'https://placehold.co/600x400/6B7280/FFFFFF?text=Conteudo+do+Curso';
+// Slides do hero (ajuste caminhos e textos)
+$slides = [
+  [
+    'image'     => 'https://picsum.photos/id/1/500/200',
+    'alt'       => 'Aprenda e cresça',
+    'title'     => 'LOREM IPSUM',
+    'text'      => 'Aenean lacinia bibendum nulla sed consectetur. Cum sociis natoque penatibus…',
+    'cta_href'  => '/cursos/1',
+    'cta_text'  => 'Ver curso',
+    'cta_label' => 'Ver curso LOREM IPSUM'
+  ],
+  [
+    'image'     => 'https://picsum.photos/id/2/500/200',
+    'alt'       => 'Faça seu próximo curso',
+    'title'     => 'APRENDA NO SEU RITMO',
+    'text'      => 'Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh…',
+    'cta_href'  => '/cursos',
+    'cta_text'  => 'Explorar',
+    'cta_label' => 'Explorar cursos'
+  ],
+  [
+    'image'     => 'https://picsum.photos/id/3/500/200',
+    'alt'       => 'Conhecimento prático',
+    'title'     => 'DO ZERO AO AVANÇADO',
+    'text'      => 'Cursos atualizados e didáticos para acelerar sua carreira.',
+    'cta_href'  => '/cursos',
+    'cta_text'  => 'Conheça',
+    'cta_label' => 'Conheça os cursos'
+  ],
+];
 
+// Inclui o componente do hero (carousel Bootstrap)
+require __DIR__ . '/../partials/hero_carousel.php';
 ?>
 
-<div class="container">
-    
-    <section class="main-banner">
-        <img class="banner-image" src="<?= htmlspecialchars($banner_image) ?>" alt="Banner de Cursos">
-        <div class="banner-content">
-            <div class="text-box">
-                <h1>LOREM IPSUM</h1>
-                <p>Aenean lacinia bibendum nulla sed consectetur. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-                <a href="#cursos" class="cta-button">VER CURSO</a>
-            </div>
-        </div>
-    </section>
+<section class="container" style="margin-top: 2rem;">
+  <h2 class="course-section-title">MEUS CURSOS</h2>
 
-    <section class="course-section">
-        <h2 class="course-section-title" id="cursos">MEUS CURSOS</h2>
+  <div class="course-grid">
+    <?php if (!empty($cursos) && is_array($cursos)): ?>
+      <?php foreach ($cursos as $curso): ?>
+        <article class="course-card">
+          <div class="course-card__thumb">
+            <img src="/assets/img/course-placeholder.jpg" alt="Capa do curso <?= htmlspecialchars($curso['nome'] ?? '') ?>">
+          </div>
+          <div class="course-card__body">
+            <h3 class="course-card__title">
+              <?= htmlspecialchars($curso['nome'] ?? 'Conteúdo do Curso') ?>
+            </h3>
+            <p class="course-card__desc">
+              <?= htmlspecialchars($curso['descricao'] ?? '') ?>
+            </p>
+          </div>
+          <div class="course-card__footer">
+            <a class="btn-view" href="/cursos/<?= (int)($curso['id'] ?? 0) ?>">VER CURSO</a>
+          </div>
+        </article>
+      <?php endforeach; ?>
+    <?php else: ?>
+      <p style="grid-column: 1 / -1; color:#666;">Nenhum curso encontrado.</p>
+    <?php endif; ?>
 
-        <div class="course-grid">
-            
-            <?php foreach ($cursos as $curso): ?>
-                
-                <div class="course-card">
-                    
-                    <?php if (strtolower($curso['nome'] ?? '') === 'php básico'): ?>
-                        <div class="tag-new">NOVO</div>
-                    <?php endif; ?>
-
-                    <div class="card-image-wrapper">
-                        <img 
-                            src="<?= htmlspecialchars($curso['imagem'] ?? $placeholder_image_url) ?>" 
-                            alt="Imagem do curso <?= htmlspecialchars($curso['nome'] ?? 'Curso') ?>"
-                            onerror="this.onerror=null; this.src='<?= htmlspecialchars($placeholder_image_url) ?>';"
-                        >
-                    </div>
-
-                    <div class="card-body">
-                        <h3 class="course-title"><?= htmlspecialchars($curso['nome'] ?? 'Pellentesque Malesuada') ?></h3>
-                        <p class="course-description">
-                            <?= htmlspecialchars($curso['descricao'] ?? 'Curabitur blandit tempus porttitor. Nulla vitae elit libero, a pharetra augue.') ?>
-                        </p>
-                    </div>
-
-                    <a href="<?= htmlspecialchars($curso['link'] ?? '#') ?>" class="card-link">
-                        VER CURSO
-                    </a>
-                </div>
-
-            <?php endforeach; ?>
-
-            <a href="/cursos/novo" class="add-course-button">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                <span>ADICIONAR CURSO</span>
-            </a>
-            
-        </div>
-    </section>
-</div>
+    <!-- Tile "Adicionar Curso" -->
+    <a href="/cursos/create" class="add-card">
+      <div class="add-card__icon">+</div>
+      <div class="add-card__label">ADICIONAR CURSO</div>
+    </a>
+  </div>
+</section>
