@@ -72,4 +72,30 @@ class CourseController
             'curso' => $curso ?? [],
         ]);
     }
+
+    public function delete(Request $request): void
+    {
+        try {
+            $id = (int)($request->params['id'] ?? 0);
+            if (!$id) {
+                throw new Exception('ID inválido');
+            }
+
+            Database::beginTransaction();
+            $this->course->delete($id);
+            Database::commit();
+
+            // Retorna resposta JSON (para requisição AJAX)
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => 'Curso excluído com sucesso']);
+            exit;
+        } catch (Throwable $e) {
+            Database::rollBack();
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            exit;
+        }
+    }
+
+
 }

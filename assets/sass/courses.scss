@@ -1,6 +1,8 @@
 @use 'components/course-card';
 @use 'components/add-button';
 @use 'components/modal';
+@use 'components/modal-form';
+@use 'components/modal-details';
 
 @use 'pages/courses/index'; 
 @use 'pages/courses/show';  
