@@ -1,0 +1,69 @@
+.app-modal[hidden] {
+  display: none;
+}
+.app-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+.app-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+.app-modal__dialog {
+  position: relative;
+  z-index: 1;
+  margin: 7vh auto;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #eee;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  width: min(560px, 92vw);
+  max-height: 86vh;
+  overflow: auto;
+}
+.app-modal__dialog--sm {
+  width: min(420px, 92vw);
+}
+.app-modal__dialog--md {
+  width: min(560px, 92vw);
+}
+.app-modal__dialog--lg {
+  width: min(760px, 92vw);
+}
+.app-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.app-modal__close {
+  border: 0;
+  background: transparent;
+  color: #999;
+  cursor: pointer;
+  padding: 6px;
+}
+.app-modal__content {
+  padding: 16px 18px 0;
+}
+.app-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 18px 18px;
+}
+
+.app-modal .form-row {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.app-modal input,
+.app-modal textarea {
+  border: 1px solid #e4e4e4;
+  border-radius: 10px;
+  padding: 10px 12px;
+}

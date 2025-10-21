@@ -41,23 +41,26 @@ class CourseController
     public function store(Request $request): string
     {
         try {
+            $data = $request->body;
+            if (empty(trim($data['nome'] ?? ''))) {
+                throw new Exception('O nome é obrigatório');
+            }
+
             Database::beginTransaction();
-            $ultimoId = $this->course->create($request->body ?? []);
+            $id = $this->course->create($data);
             Database::commit();
 
-            return $this->renderer->render('debug', [
-                'message'   => "Curso salvo com sucesso. ID inserido: {$ultimoId}",
-                'POST_data' => $request->body ?? [],
-            ]);
+            header('Location: /cursos?created=1');
+            exit;
         } catch (Throwable $e) {
             Database::rollBack();
             http_response_code(500);
             return $this->renderer->render('debug', [
-                'message'   => 'Falha ao salvar curso: ' . $e->getMessage(),
-                'POST_data' => $request->body ?? [],
+                'message' => 'Erro: ' . $e->getMessage(),
             ]);
         }
     }
+
 
     public function show(Request $request): string
     {
