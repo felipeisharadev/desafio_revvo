@@ -9,33 +9,28 @@
   background: #111;
 }
 
-/* altura fluida com limites */
 .hero__viewport {
-  /* em vez de fixo 24rem, use clamp para mobile/desktop */
-  height: clamp(220px, 32vw, 420px);
-  position: relative; /* garante referência para o overlay */
+  height: clamp(220px, 28vw, 420px);
+  position: relative;
 }
 
-/* CADA slide precisa ter a mesma altura do viewport */
 .hero .carousel-item {
   height: 100%;
 }
 
-/* a imagem preenche o item inteiro */
 .hero__img {
-  display: block;        /* remove gaps de imagem inline */
+  display: block;   
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center; /* ajuste focal; pode usar 'left center' se quiser */
+  object-position: center; 
 }
 
-/* overlay ocupa todo o hero; texto dentro alinha pelo seu container-wide */
 .hero__overlay {
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: center;   /* centraliza vertical no espaço correto */
+  align-items: center;  
   color: #fff;
 
   .hero__content { width: 100%; }
@@ -72,13 +67,11 @@
   }
 }
 
-/* Opcional: setas menores e escondidas no mobile */
 .hero .carousel-control-prev,
 .hero .carousel-control-next {
   width: 3rem;
   @media (max-width: var.$sm) { display: none; }
 }
 
-/* Indicadores mais legíveis */
 .hero .carousel-indicators [data-bs-target] { background-color: #fff; opacity: .6; }
 .hero .carousel-indicators .active { opacity: 1; }
