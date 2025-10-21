@@ -19,6 +19,7 @@ class SimpleViewRenderer implements ViewRendererInterface
      * @param array 
      * @return string 
      */
+
     public function render(string $viewName, array $viewData = []): string
     {
         $sanitizedViewName = $this->sanitizeViewName($viewName);
@@ -32,13 +33,16 @@ class SimpleViewRenderer implements ViewRendererInterface
         if (!file_exists($layoutFile)) {
             throw new Exception("Layout file not found: " . $layoutFile);
         }
+        
+        extract($viewData, EXTR_SKIP);
 
         ob_start();
         require $layoutFile; 
-    
+        
         $output = ob_get_clean();
         return $output;
     }
+
     
     protected function sanitizeViewName(string $viewName): string
     {

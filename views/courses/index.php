@@ -1,14 +1,13 @@
 <?php
 
-$pageClass = 'home';
-$cursos = $cursos ?? ($viewData['cursos'] ?? []);
+$courses = $courses ?? ($viewData['courses'] ?? []);
 $placeholder_image_url = 'https://placehold.co/600x400/6B7280/FFFFFF?text=Conteudo+do+Curso';
 
 $slides = [
   [
     'image'     => 'https://picsum.photos/id/1/1600/300',
     'alt'       => 'Aprenda e cresça',
-    'title'     => 'LOREM IPSUM',
+    'title'     => 'teste IPSUM',
     'text'      => 'Aenean lacinia bibendum nulla sed consectetur. Cum sociis natoque penatibus…',
     'cta_href'  => '/cursos/1',
     'cta_text'  => 'Ver curso',
@@ -42,16 +41,16 @@ require __DIR__ . '/../partials/hero_carousel.php';
 
   <div class="course-grid">
 
-    <?php foreach ($cursos as $curso): ?>
+    <?php foreach ($courses as $course): ?>
       <?php
         // imagem do curso (se não tiver no banco, usa placeholder)
-        $img = $curso['imagem'] ?? $placeholder_image_url;
+        $img = $course['imagem'] ?? $placeholder_image_url;
 
         // link preferencial: /cursos/{id} se houver id; senão, usa 'link' (se existir) ou '#'
-        $link = isset($curso['id']) ? "/cursos/" . (int)$curso['id'] : ($curso['link'] ?? '#');
+        $link = isset($course['id']) ? "/cursos/" . (int)$course['id'] : ($course['link'] ?? '#');
 
         // marca "NOVO" para um nome específico (ex.: "PHP básico"), como no seu exemplo anterior
-        $isNew = strtolower($curso['nome'] ?? '') === 'php básico';
+        $isNew = strtolower($course['nome'] ?? '') === 'php básico';
       ?>
 
       <div class="course-card">
@@ -62,17 +61,17 @@ require __DIR__ . '/../partials/hero_carousel.php';
         <div class="card-image-wrapper">
           <img
             src="<?= htmlspecialchars($img) ?>"
-            alt="Imagem do curso <?= htmlspecialchars($curso['nome'] ?? 'Curso') ?>"
+            alt="Imagem do curso <?= htmlspecialchars($course['nome'] ?? 'Curso') ?>"
             onerror="this.onerror=null; this.src='<?= htmlspecialchars($placeholder_image_url) ?>';"
           >
         </div>
 
         <div class="card-body">
           <h3 class="course-title">
-            <?= htmlspecialchars($curso['nome'] ?? 'Pellentesque Malesuada') ?>
+            <?= htmlspecialchars($course['nome'] ?? 'Pellentesque Malesuada') ?>
           </h3>
           <p class="course-description">
-            <?= htmlspecialchars($curso['descricao'] ?? 'Curabitur blandit tempus porttitor. Nulla vitae elit libero, a pharetra augue.') ?>
+            <?= htmlspecialchars($course['descricao'] ?? 'Curabitur blandit tempus porttitor. Nulla vitae elit libero, a pharetra augue.') ?>
           </p>
         </div>
 
@@ -82,7 +81,7 @@ require __DIR__ . '/../partials/hero_carousel.php';
       </div>
     <?php endforeach; ?>
 
-    <?php if (empty($cursos)): ?>
+    <?php if (empty($courses)): ?>
       <p style="grid-column: 1 / -1; color:#666;">Nenhum curso encontrado.</p>
     <?php endif; ?>
 

@@ -1,31 +1,33 @@
 <?php
-// app/Controllers/CursoController.php
+// app/Controllers/CourseController.php
 namespace App\Controllers;
 
 use App\Interfaces\ViewRendererInterface; // mantenha se você ainda estiver usando a interface
 use App\Core\Database;
 use App\Core\Request;
-use App\Models\Curso;
+use App\Models\Course;
 use Throwable;
 
-class CursoController
+class CourseController
 {
-    private Curso $curso;
+    private Course $course;
     private ViewRendererInterface $renderer;
 
     public function __construct(ViewRendererInterface $renderer)
     {
         $this->renderer = $renderer;
-        $this->curso = new Curso();
+        $this->course = new Course();
     }
 
     public function index(Request $request): string
     {
-        $cursos = $this->curso->all();
+        $cursoModel = new Course();
+        $courses = $cursoModel->all();
 
-        return $this->renderer->render('cursos/index', [
-            'title'  => 'Lista de Cursos',
-            'cursos' => $cursos,
+        return $this->renderer->render('courses/index', [
+            'pageTitle' => 'Meus Cursos',
+            'pageClass' => 'courses', 
+            'courses'    => $courses,
         ]);
     }
 
@@ -40,7 +42,7 @@ class CursoController
     {
         try {
             Database::beginTransaction();
-            $ultimoId = $this->curso->create($request->body ?? []);
+            $ultimoId = $this->course->create($request->body ?? []);
             Database::commit();
 
             return $this->renderer->render('debug', [
@@ -60,7 +62,7 @@ class CursoController
     public function show(Request $request): string
     {
         $id = 1;
-        $curso = $this->curso->find($id);
+        $curso = $this->course->find($id);
 
         return $this->renderer->render('cursos/show', [
             'title' => 'Visualizar Curso',

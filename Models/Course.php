@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Core\Database;
 use PDO;
 
-final class Curso
+final class Course
 {
     private ?PDO $db = null;
 

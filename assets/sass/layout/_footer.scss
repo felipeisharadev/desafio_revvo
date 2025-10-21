@@ -1,0 +1,28 @@
+@use '../variables' as var;
+
+.footer {
+    background-color: #FFFFFF;
+    border-top: 1px solid var.$color-border;
+    margin-top: 3rem;
+
+    .footer-content {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        padding: 2rem 1rem;
+        gap: 2rem;
+
+        h4 {
+            font-size: 0.9rem;
+            color: var.$color-text-light;
+            margin-bottom: 1rem;
+        }
+    }
+    
+    .copyright {
+        text-align: center;
+        padding: 1rem;
+        background-color: #F0F0F0;
+        font-size: 0.8rem;
+        color: var.$color-text-light;
+    }
+}
