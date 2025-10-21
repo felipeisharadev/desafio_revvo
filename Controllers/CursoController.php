@@ -16,7 +16,7 @@ class CursoController
     public function __construct(ViewRendererInterface $renderer)
     {
         $this->renderer = $renderer;
-        $this->curso = new Curso(); // sem passar DB
+        $this->curso = new Curso();
     }
 
     public function index(Request $request): string

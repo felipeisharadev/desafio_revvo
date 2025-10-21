@@ -12,13 +12,6 @@
 /* altura do banner conforme layout */
 .hero__viewport {
   height: 24rem;
-
-  @media (min-width: var.$md) {
-    height: 28rem;
-  }
-  @media (min-width: var.$lg) {
-    height: 32rem;
-  }
 }
 
 /* imagem cobre tudo */
