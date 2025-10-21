@@ -1,5 +1,5 @@
 <header class="header">
-  <div class="header-content container">
+  <div class="header-content">
     <a href="/" class="logo">LEO</a>
 
     <nav class="main-nav"></nav>

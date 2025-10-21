@@ -1,72 +1,88 @@
 @use '../variables' as var;
 
 .course-card {
-    background-color: #d32222;
-    border-radius: 14px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  border: 1px solid var.$color-border;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: transform .12s ease, box-shadow .12s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,.12);
+  }
+
+  .card-image-wrapper {
+    width: 100%;
+    background-color: var.$color-border;
     overflow: hidden;
-    position: relative;
-    display: flex;
-    flex-direction: column;
 
-    .card-image-wrapper {
-        height: 10rem;
-        width: 100%;
-        background-color: var.$color-border;
-        overflow: hidden;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
 
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+  .tag-new {
+    position: absolute;
+    top: 10px;
+    right: -14px;
+    background-color: #ffc107;
+    color: #fff;
+    font-size: .68rem;
+    font-weight: 800;
+    padding: .25rem .5rem;
+    transform: rotate(30deg);
+    letter-spacing: .02em;
+    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+    z-index: 2;
+  }
+
+  .card-body {
+    padding: 16px 16px 8px;
+    flex-grow: 1;
+
+    .course-title {
+      font-weight: 800;
+      font-size: 1rem;
+      margin-bottom: .35rem;
+      color: var.$color-text;
+      text-transform: uppercase;
+      letter-spacing: .02em;
     }
 
-    // Tag NOVO (do anexo)
-    .tag-new {
-        position: absolute;
-        top: 0; 
-        right: 0;
-        background-color: #FFC107; /* Amarelo */
-        color: #FFFFFF;
-        font-size: 0.75rem;
-        font-weight: 700;
-        padding: 0.25rem 0.5rem;
-        z-index: 10;
-        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 75%); /* Simplesmente um retângulo */
+    .course-description {
+      color: var.$color-text-light;
+      font-size: .875rem;
+      line-height: 1.4;
+      min-height: 38px; /* pra manter altura consistente */
     }
-
-    .card-body {
-        padding: 1rem;
-        flex-grow: 1; /* Para empurrar o botão para baixo */
-
-        .course-title {
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-            color: var.$color-text;
-        }
-
-        .course-description {
-            color: var.$color-text-light;
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
-            line-height: 1.4;
-        }
-    }
+  }
 }
 
+/* Botão verde “VER CURSO” (pílula) */
 .card-link {
-    display: block;
-    width: 100%;
-    text-align: center;
-    background-color: var.$color-primary;
-    color: #FFFFFF;
-    font-weight: 700;
-    padding: 0.75rem 0;
-    transition: background-color 0.3s;
+  display: block;
+  width: calc(100% - 32px);
+  margin: 8px auto 16px;
+  text-align: center;
+  background-color: var.$btn-primary;
+  color: #fff;
+  font-weight: 700;
+  padding: .75rem 0;
+  border-radius: 999px;
+  transition: background-color .2s ease, transform .06s ease;
 
-    &:hover {
-        background-color: var.$color-secondary;
-    }
+  &:hover {
+    background-color: var.$color-secondary;
+  }
+  &:active {
+    transform: translateY(1px);
+  }
 }

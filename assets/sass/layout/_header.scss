@@ -11,6 +11,7 @@
         justify-content: space-between;
         align-items: center;
         gap: 1rem;
+        padding-inline: clamp(1rem, 4vw, 3rem);
     }
 }
 

@@ -6,7 +6,7 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    border: 2px dashed var.$color-border; 
+    border: 2px dashed #9F9F9F; 
     border-radius: 4px; 
     color: var.$color-text-light; 
     transition: all 0.3s;
@@ -14,8 +14,8 @@
     min-height: 20rem; /* Garante altura para a grade */
 
     &:hover {
-        border-color: var.$color-primary;
-        color: var.$color-primary;
+        border-color: var.$btn-primary;
+        color: var.$btn-primary;
     }
 
     svg {

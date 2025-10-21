@@ -1,6 +1,35 @@
 <?php
 /** @var array $slides */
 $carouselId = 'carouselExampleControlsNoTouching';
+$slides = [
+  [
+    'image'     => 'https://picsum.photos/id/1/1600/300',
+    'alt'       => 'Aprenda e cresça',
+    'title'     => 'teste IPSUM',
+    'text'      => 'Aenean lacinia bibendum nulla sed consectetur. Cum sociis natoque penatibus…',
+    'cta_href'  => '/cursos/1',
+    'cta_text'  => 'Ver curso',
+    'cta_label' => 'Ver curso LOREM IPSUM'
+  ],
+  [
+    'image'     => 'https://picsum.photos/id/2/1600/300',
+    'alt'       => 'Faça seu próximo curso',
+    'title'     => 'APRENDA NO SEU RITMO',
+    'text'      => 'Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh…',
+    'cta_href'  => '/cursos',
+    'cta_text'  => 'Explorar',
+    'cta_label' => 'Explorar cursos'
+  ],
+  [
+    'image'     => 'https://picsum.photos/id/3/1600/300',
+    'alt'       => 'Conhecimento prático',
+    'title'     => 'DO ZERO AO AVANÇADO',
+    'text'      => 'Cursos atualizados e didáticos para acelerar sua carreira.',
+    'cta_href'  => '/cursos',
+    'cta_text'  => 'Conheça',
+    'cta_label' => 'Conheça os cursos'
+  ],
+];
 ?>
 <section class="hero">
   <div id="<?= $carouselId ?>" class="carousel slide" data-bs-touch="false" data-bs-interval="6000">
@@ -13,7 +42,7 @@ $carouselId = 'carouselExampleControlsNoTouching';
             alt="<?= htmlspecialchars($s['alt'] ?? ($s['title'] ?? 'Slide '.($i+1))) ?>"
           >
           <div class="hero__overlay">
-            <div class="container hero__content">
+            <div class="container-wide hero__content">
               <div class="hero__box">
                 <?php if (!empty($s['title'])): ?>
                   <h1><?= htmlspecialchars($s['title']) ?></h1>

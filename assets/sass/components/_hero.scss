@@ -1,62 +1,68 @@
 @use '../variables' as var;
 
-/* Hero full-bleed (preenche a viewport na largura) */
+/* full-bleed */
 .hero {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   position: relative;
-  background: #111; /* fallback enquanto carrega a imagem */
+  background: #111;
 }
 
-/* altura do banner conforme layout */
+/* altura fluida com limites */
 .hero__viewport {
-  height: 24rem;
+  /* em vez de fixo 24rem, use clamp para mobile/desktop */
+  height: clamp(220px, 32vw, 420px);
+  position: relative; /* garante referência para o overlay */
 }
 
-/* imagem cobre tudo */
+/* CADA slide precisa ter a mesma altura do viewport */
+.hero .carousel-item {
+  height: 100%;
+}
+
+/* a imagem preenche o item inteiro */
 .hero__img {
+  display: block;        /* remove gaps de imagem inline */
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center; /* ajuste focal; pode usar 'left center' se quiser */
 }
 
-/* overlay com texto/CTA */
+/* overlay ocupa todo o hero; texto dentro alinha pelo seu container-wide */
 .hero__overlay {
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: center;
+  align-items: center;   /* centraliza vertical no espaço correto */
   color: #fff;
 
-  .hero__content {
-    /* alinha com o grid do site */
-    width: 100%;
-  }
+  .hero__content { width: 100%; }
 
   .hero__box {
     max-width: 28rem;
-    background: rgba(0,0,0,0.45);
-    padding: 1.5rem;
+    background: rgba(0,0,0,.45);
+    padding: clamp(.75rem, 2vw, 1.5rem);
     border-radius: 4px;
   }
 
   h1 {
-    font-size: 2rem;
+    font-size: clamp(1.25rem, 3.5vw, 2rem);
     font-weight: 800;
     margin-bottom: .75rem;
     line-height: 1.2;
   }
 
   p {
-    font-size: .95rem;
+    font-size: clamp(.85rem, 1.8vw, .95rem);
     margin-bottom: 1rem;
     color: #e8e8e8;
   }
 
   .hero__cta {
     display: inline-block;
-    background-color: var.$color-primary;
+    background-color: var.$btn-primary;
     color: #fff;
     font-weight: 700;
     padding: .75rem 1.25rem;
@@ -66,19 +72,13 @@
   }
 }
 
-/* Ajustes dos indicadores e setas do Bootstrap para combinar com o layout */
-.hero .carousel-indicators [data-bs-target] {
-  background-color: #fff;
-  opacity: .6;
-}
-.hero .carousel-indicators .active {
-  opacity: 1;
-}
-
+/* Opcional: setas menores e escondidas no mobile */
 .hero .carousel-control-prev,
 .hero .carousel-control-next {
   width: 3rem;
-  @media (max-width: var.$sm) {
-    display: none; /* opcional: esconder setas no mobile */
-  }
+  @media (max-width: var.$sm) { display: none; }
 }
+
+/* Indicadores mais legíveis */
+.hero .carousel-indicators [data-bs-target] { background-color: #fff; opacity: .6; }
+.hero .carousel-indicators .active { opacity: 1; }
