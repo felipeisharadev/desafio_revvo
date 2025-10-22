@@ -5,17 +5,6 @@ use App\Interfaces\RouterInterface;
 
 final class SimpleRouter implements RouterInterface
 {
-    /**
-     * Estrutura:
-     * $this->routes['GET'][] = [
-     *   'raw'     => '/cursos/delete/{id}',
-     *   'handler' => 'CourseController@delete',
-     *   'regex'   => '#^/cursos/delete/([^/]+)$#',
-     *   'params'  => ['id']
-     * ];
-     *
-     * E também mantemos um mapa de rotas exatas para lookups rápidos.
-     */
     private array $routes = [];
     private array $staticMap = [];
 
@@ -24,10 +13,8 @@ final class SimpleRouter implements RouterInterface
         $method = strtoupper($method);
         $path   = rtrim($path, '/') ?: '/';
 
-        // Detecta se é rota com placeholder {param}
         if (preg_match_all('#\{([^/]+)\}#', $path, $m)) {
             $paramNames = $m[1]; // ex.: ['id']
-            // Transforma /cursos/delete/{id} em regex capturando grupos
             $regex = preg_replace('#\{[^/]+\}#', '([^/]+)', $path);
             $regex = '#^' . $regex . '$#';
 
@@ -38,7 +25,6 @@ final class SimpleRouter implements RouterInterface
                 'params'  => $paramNames,
             ];
         } else {
-            // Rota estática (sem placeholders)
             $this->staticMap[$method][$path] = $handler;
         }
     }
@@ -49,7 +35,6 @@ final class SimpleRouter implements RouterInterface
         $path   = strtok($path, '?') ?: '/';
         $path   = rtrim($path, '/') ?: '/';
 
-        // 1) Tenta match exato rápido
         if (isset($this->staticMap[$method][$path])) {
             [$ctrl, $act] = explode('@', $this->staticMap[$method][$path], 2);
             return [
@@ -59,7 +44,6 @@ final class SimpleRouter implements RouterInterface
             ];
         }
 
-        // 2) Tenta rotas com placeholders
         foreach ($this->routes[$method] ?? [] as $route) {
             if (preg_match($route['regex'], $path, $matches)) {
                 array_shift($matches); // remove match completo
@@ -76,7 +60,6 @@ final class SimpleRouter implements RouterInterface
             }
         }
 
-        // 3) Fallback NotFound
         return [
             'controller' => 'App\\Controllers\\NotFoundController',
             'action'     => 'index',

@@ -1,5 +1,5 @@
 <?php
-// Infrastructure/PDOConnection.php
+
 namespace App\Infrastructure;
 
 use App\Interfaces\DBConnectionInterface;
@@ -9,13 +9,11 @@ use Exception;
 
 class PDOConnection implements DBConnectionInterface
 {
-    // Usaremos $connection para ser mais descritivo
     private ?PDO $connection = null; 
 
     /**
-     * Construtor ajustado para SQLite.
-     * @param array $config Deve conter 'database_path' (caminho para o arquivo .sqlite).
-     * @throws Exception Se a conexão falhar.
+     * @param array 
+     * @throws Exception 
      */
     public function __construct(array $config)
     {

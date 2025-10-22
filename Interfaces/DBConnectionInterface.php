@@ -1,5 +1,4 @@
 <?php
-// Interfaces/DBConnectionInterface.php
 namespace App\Interfaces;
 
 interface DBConnectionInterface

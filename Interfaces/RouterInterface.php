@@ -1,5 +1,4 @@
 <?php
-// Interfaces/RouterInterface.php
 namespace App\Interfaces;
 
 interface RouterInterface

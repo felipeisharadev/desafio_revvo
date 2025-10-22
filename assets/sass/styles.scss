@@ -1,11 +1,7 @@
-/* 1) Fundamentos */
 @use 'variables';
-//@use 'mixins';
 @use 'base';
 
-/* 2) Layout global */
 @use 'layout/header';
 @use 'layout/footer';
 
-/* 3) Componentes reutilizáveis */
 @use 'components/hero';

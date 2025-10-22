@@ -1,6 +1,5 @@
 @use '../variables' as var;
 
-/* Layout do Banner */
 .main-banner {
     position: relative;
     height: 24rem; 
@@ -26,7 +25,6 @@
             color: #FFFFFF;
             max-width: 28rem;
             padding: 1.5rem;
-            // Fundo escuro sutil para melhor leitura, como no anexo
             background-color: rgba(0, 0, 0, 0.4); 
             border-radius: 4px; 
         }

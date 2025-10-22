@@ -1,5 +1,4 @@
 <?php
-// Interfaces/ViewRendererInterface.php
 namespace App\Interfaces;
 
 interface ViewRendererInterface

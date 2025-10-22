@@ -1,5 +1,5 @@
 <?php
-// app/Core/Database.php
+
 namespace App\Core;
 
 use PDO;
@@ -11,10 +11,6 @@ final class Database
     /** @var PDO|null */
     private static ?PDO $connection = null;
 
-    /**
-     * Inicializa a conexão do request.
-     * Chamado uma única vez no Bootstrap.
-     */
     public static function init(array $config): void
     {
         if (self::$connection !== null) {
@@ -48,9 +44,6 @@ final class Database
         }
     }
 
-    /**
-     * Retorna a conexão ativa.
-     */
     public static function conn(): PDO
     {
         if (!self::$connection) {
@@ -59,9 +52,6 @@ final class Database
         return self::$connection;
     }
 
-    /**
-     * Métodos utilitários para transações
-     */
     public static function beginTransaction(): void
     {
         self::conn()->beginTransaction();

@@ -1,5 +1,4 @@
 <?php
-// app/Controllers/CourseController.php
 namespace App\Controllers;
 
 use App\Interfaces\ViewRendererInterface; // mantenha se você ainda estiver usando a interface
