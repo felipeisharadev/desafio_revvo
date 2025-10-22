@@ -153,7 +153,6 @@ include __DIR__ . '/../components/modal.php';
           <p class="muted">${escapeHtml(data.descricao || 'Sem descrição disponível.')}</p>
           <dl class="meta">
             <div><dt>Carga horária</dt><dd>${Number(data.carga_horaria || 0)}h</dd></div>
-            <div><dt>ID</dt><dd>#${Number(data.id || 0)}</dd></div>
           </dl>
         </div>
       </article>
