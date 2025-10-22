@@ -7,10 +7,26 @@ require ROOT_PATH . '/vendor/autoload.php';
 use App\Core\Bootstrap;
 use App\Core\Request;
 
+$request = new Request($_SERVER, $_GET, $_POST);
+
 try {
     $app = (new Bootstrap())->start();
-    echo $app->handle(new Request($_SERVER, $_GET, $_POST));
+    echo $app->handle($request);
 } catch (Throwable $e) {
     http_response_code(500);
-    echo "<h1>Erro Crítico do Sistema.</h1><p>Detalhes: " . htmlspecialchars($e->getMessage()) . "</p>";
+
+    // Detecta AJAX/JSON
+    $accept = $request->server['HTTP_ACCEPT'] ?? '';
+    $xhr    = strtolower($request->server['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest';
+    $wantsJson = $xhr || str_contains($accept, 'application/json');
+
+    if ($wantsJson) {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => false,
+            'error'   => $e->getMessage(),
+        ], JSON_UNESCAPED_UNICODE);
+    } else {
+        echo "<h1>Erro Crítico do Sistema.</h1><p>Detalhes: " . htmlspecialchars($e->getMessage()) . "</p>";
+    }
 }

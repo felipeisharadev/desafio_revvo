@@ -5,23 +5,82 @@ use App\Interfaces\RouterInterface;
 
 final class SimpleRouter implements RouterInterface
 {
+    /**
+     * Estrutura:
+     * $this->routes['GET'][] = [
+     *   'raw'     => '/cursos/delete/{id}',
+     *   'handler' => 'CourseController@delete',
+     *   'regex'   => '#^/cursos/delete/([^/]+)$#',
+     *   'params'  => ['id']
+     * ];
+     *
+     * E também mantemos um mapa de rotas exatas para lookups rápidos.
+     */
     private array $routes = [];
+    private array $staticMap = [];
 
     public function add(string $method, string $path, string $handler): void
     {
-        $this->routes[strtoupper($method)][$path] = $handler;
+        $method = strtoupper($method);
+        $path   = rtrim($path, '/') ?: '/';
+
+        // Detecta se é rota com placeholder {param}
+        if (preg_match_all('#\{([^/]+)\}#', $path, $m)) {
+            $paramNames = $m[1]; // ex.: ['id']
+            // Transforma /cursos/delete/{id} em regex capturando grupos
+            $regex = preg_replace('#\{[^/]+\}#', '([^/]+)', $path);
+            $regex = '#^' . $regex . '$#';
+
+            $this->routes[$method][] = [
+                'raw'     => $path,
+                'handler' => $handler,
+                'regex'   => $regex,
+                'params'  => $paramNames,
+            ];
+        } else {
+            // Rota estática (sem placeholders)
+            $this->staticMap[$method][$path] = $handler;
+        }
     }
 
     public function dispatch(string $path, string $method): array
     {
-        $path   = strtok($path, '?') ?: '/';
         $method = strtoupper($method);
+        $path   = strtok($path, '?') ?: '/';
+        $path   = rtrim($path, '/') ?: '/';
 
-        if (!isset($this->routes[$method][$path])) {
-            return ['controller'=>'App\\Controllers\\NotFoundController','action'=>'index','vars'=>[]];
+        // 1) Tenta match exato rápido
+        if (isset($this->staticMap[$method][$path])) {
+            [$ctrl, $act] = explode('@', $this->staticMap[$method][$path], 2);
+            return [
+                'controller' => 'App\\Controllers\\' . $ctrl,
+                'action'     => $act,
+                'vars'       => [],
+            ];
         }
 
-        [$ctrl, $act] = explode('@', $this->routes[$method][$path]);
-        return ['controller' => 'App\\Controllers\\' . $ctrl, 'action' => $act, 'vars'=>[]];
+        // 2) Tenta rotas com placeholders
+        foreach ($this->routes[$method] ?? [] as $route) {
+            if (preg_match($route['regex'], $path, $matches)) {
+                array_shift($matches); // remove match completo
+                $vars = [];
+                foreach ($route['params'] as $i => $name) {
+                    $vars[$name] = $matches[$i] ?? null;
+                }
+                [$ctrl, $act] = explode('@', $route['handler'], 2);
+                return [
+                    'controller' => 'App\\Controllers\\' . $ctrl,
+                    'action'     => $act,
+                    'vars'       => $vars,
+                ];
+            }
+        }
+
+        // 3) Fallback NotFound
+        return [
+            'controller' => 'App\\Controllers\\NotFoundController',
+            'action'     => 'index',
+            'vars'       => [],
+        ];
     }
 }

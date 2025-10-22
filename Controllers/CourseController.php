@@ -73,29 +73,38 @@ class CourseController
         ]);
     }
 
-    public function delete(Request $request): void
-    {
-        try {
-            $id = (int)($request->params['id'] ?? 0);
-            if (!$id) {
-                throw new Exception('ID inválido');
-            }
+public function delete(\App\Core\Request $request): void
+{
+    header('Content-Type: application/json; charset=utf-8');
 
-            Database::beginTransaction();
-            $this->course->delete($id);
-            Database::commit();
+    try {
+        // 1) tenta pegar via $request->params['id'] se seu Application preencher
+        $id = isset($request->params['id']) ? (int)$request->params['id'] : 0;
 
-            // Retorna resposta JSON (para requisição AJAX)
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'message' => 'Curso excluído com sucesso']);
-            exit;
-        } catch (Throwable $e) {
-            Database::rollBack();
-            http_response_code(500);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-            exit;
+        // 2) fallback: extrai do path (último segmento de /cursos/delete/{id})
+        if ($id <= 0) {
+            $path = strtok($request->server['REQUEST_URI'] ?? '/', '?') ?: '/';
+            $segments = array_values(array_filter(explode('/', $path), 'strlen'));
+            $last = end($segments);
+            $id = (int)$last;
         }
+
+        if ($id <= 0) {
+            throw new \Exception('ID inválido.');
+        }
+
+        \App\Core\Database::beginTransaction();
+        $this->course->delete($id);
+        \App\Core\Database::commit();
+
+        echo json_encode(['success' => true, 'message' => 'Curso excluído com sucesso']);
+    } catch (\Throwable $e) {
+        \App\Core\Database::rollBack();
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+    exit;
+}
 
 
 }
