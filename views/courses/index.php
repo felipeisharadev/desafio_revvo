@@ -1,12 +1,7 @@
 <?php
-// app/Views/courses/index.php
-
 $courses = $courses ?? ($viewData['courses'] ?? []);
 $placeholder_image_url = '/assets/imgs/course-placeholder.png';
-
 require __DIR__ . '/../partials/hero_carousel.php';
-
-// flash simples via querystring
 $created = isset($_GET['created']) && $_GET['created'] == '1';
 ?>
 
