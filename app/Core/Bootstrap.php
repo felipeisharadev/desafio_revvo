@@ -26,6 +26,6 @@ final class Bootstrap
 
     private function buildViewRenderer(): SimpleViewRenderer
     {
-        return new SimpleViewRenderer(ROOT_PATH . '/views');
+        return new SimpleViewRenderer(ROOT_PATH . '/app/Views');
     }
 }

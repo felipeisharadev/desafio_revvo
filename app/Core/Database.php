@@ -22,6 +22,7 @@ final class Database
         $pass = $config['pass'] ?? null;
 
         if (!$dsn) {
+            
             if (isset($config['database_path'])) {
                 $dsn = 'sqlite:' . $config['database_path'];
             } else {
