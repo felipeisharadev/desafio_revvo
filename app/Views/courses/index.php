@@ -71,14 +71,8 @@ $created = isset($_GET['created']) && $_GET['created'] == '1';
 </section>
 
 <?php
-
 require __DIR__ . '/create.php';
 require __DIR__ . '/details.php';
-
-
-?>
-
-<?php
 require __DIR__ . '/../components/onboarding_modal.php';
 ?>
 
