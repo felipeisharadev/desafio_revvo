@@ -4,7 +4,6 @@
   const placeholderImg =
     root?.dataset.placeholderImg || '/assets/imgs/course-placeholder.png';
 
-  // === Função utilitária para escapar HTML ===
   function escapeHtml(str = '') {
     return String(str)
       .replace(/&/g, '&amp;')
@@ -14,7 +13,6 @@
       .replace(/'/g, '&#39;');
   }
 
-  // === Renderiza o conteúdo do modal de detalhes ===
   function renderCourseDetails(course) {
     const img = course.imagem || placeholderImg;
     const hasLink = !!(course.link && /^https?:\/\//i.test(course.link));
@@ -52,7 +50,6 @@
     if (target) target.innerHTML = html;
   }
 
-  // === ABRIR MODAL DE DETALHES ===
   document.addEventListener(
     'click',
     (e) => {
@@ -69,20 +66,15 @@
 
       currentCourseId = course.id;
 
-      // Guarda o JSON no modal
       const modal = document.getElementById('modal-details');
       if (modal) modal.dataset.course = JSON.stringify(course);
 
-      // Preenche conteúdo ANTES de abrir
       renderCourseDetails(course);
-
-      // Abre o modal
       openModal('#modal-details');
     },
     true
   );
 
-  // === EXCLUIR CURSO ===
   document.addEventListener('click', async (e) => {
     const btn = e.target.closest('#delete-course-btn');
     if (!btn) return;
@@ -129,7 +121,6 @@
     }
   });
 
-  // === ABRIR EDIÇÃO A PARTIR DO DETALHES ===
   document.addEventListener('click', async (e) => {
     const btn = e.target.closest('#edit-course-btn');
     if (!btn) return;
@@ -153,10 +144,7 @@
 
       const html = await res.text();
 
-      // Remove modal antigo (se existir)
       document.getElementById('modal-edit-course')?.remove();
-
-      // Injeta o HTML recebido
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
       const modalEl = tmp.querySelector('#modal-edit-course');
@@ -167,7 +155,6 @@
       }
       document.body.appendChild(modalEl);
 
-      // Fecha o modal de detalhes
       const detailsModal = btn.closest('.app-modal');
       if (detailsModal) {
         detailsModal.hidden = true;
@@ -176,7 +163,6 @@
         document.body.style.overflow = '';
       }
 
-      // Abre o modal de edição, reaproveitando modal.js
       const fakeOpen = document.createElement('a');
       fakeOpen.href = '#';
       fakeOpen.setAttribute('data-modal-open', '#modal-edit-course');
@@ -189,7 +175,6 @@
     }
   });
 
-  // === INTERCEPTA SUBMITS (CREATE/UPDATE AJAX) ===
   document.addEventListener('submit', async (e) => {
     const form = e.target.closest('.modal__form');
     if (!form) return;
@@ -206,7 +191,6 @@
         headers: { 'X-Requested-With': 'XMLHttpRequest' },
       });
 
-      // Sucesso em JSON (store/update)
       const contentType = res.headers.get('content-type') || '';
       if (res.ok && contentType.includes('application/json')) {
         const data = await res.json();
@@ -216,22 +200,17 @@
         }
       }
 
-      // 422 com HTML do modal (erros de validação)
       const html = await res.text();
 
-      // Descobre qual modal estamos
       const modalEl = form.closest('.app-modal');
       if (!modalEl) return;
 
-      // Substitui o modal inteiro pelo HTML novo
       const wrapper = document.createElement('div');
       wrapper.innerHTML = html;
 
       const newModal = wrapper.querySelector('.app-modal');
       if (newModal && newModal.id === modalEl.id) {
         modalEl.replaceWith(newModal);
-
-        // Reabre o modal se vier fechado
         newModal.hidden = false;
         newModal.setAttribute('aria-hidden', 'false');
         newModal.style.display = '';
