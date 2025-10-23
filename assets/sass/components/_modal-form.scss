@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../variables' as var;
 
 .app-modal {
@@ -32,5 +33,70 @@
       outline: none;
       box-shadow: 0 0 0 1px var.$btn-primary inset;
     }
+  }
+}
+
+.modal__form {
+  display: grid;
+  gap: var.$sp-16;
+}
+
+.form-row {
+  display: grid;
+  gap: var.$sp-8;
+
+  label {
+    font-weight: var.$fw-semibold;
+  }
+
+  .help {
+    color: var.$color-muted;
+    font-size: var.$fs-12;
+  }
+
+  .form-error {
+    margin-top: var.$sp-6;
+    padding: var.$sp-6 var.$sp-8;
+    border-radius: var.$radius;
+    background: var.$color-danger-50;
+    border: 1px solid var.$color-danger-200;
+    color: var.$color-danger;
+    font-size: var.$fs-13;
+    line-height: 1.35;
+  }
+
+  input[aria-invalid="true"],
+  textarea[aria-invalid="true"],
+  select[aria-invalid="true"],
+  .is-invalid {
+    border-color: var.$color-danger !important;
+    outline: none;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(var.$color-danger, .15); // se sua pipeline reclamar do rgba com var, troque por: box-shadow: 0 0 0 3px rgba(211,47,47,.15);
+    }
+  }
+
+  &.has-error label {
+    color: var.$color-danger;
+  }
+}
+
+input[type="text"],
+input[type="number"],
+input[type="file"],
+textarea,
+select {
+  width: 100%;
+  border: 1px solid var.$color-border;
+  border-radius: var.$radius;
+  padding: var.$sp-12 var.$sp-12;
+  background: var.$color-bg;
+  font-size: var.$fs-14;
+
+  &:focus {
+    outline: none;
+    border-color: color.adjust(var.$color-border, $lightness: -10%);
+    box-shadow: 0 0 0 3px color.change(#000, $alpha: 0.04);
   }
 }

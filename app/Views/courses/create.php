@@ -1,10 +1,12 @@
 <?php
 ob_start();
 include __DIR__ . '/_form_fields.php';
+$errors = $errors ?? ($viewData['errors'] ?? []);
 ?>
   <div class="form-row">
     <label for="imagem">Imagem do curso</label>
     <input id="imagem" name="imagem" type="file" accept="image/*" required>
+    <?= !empty($errors['imagem']) ? '<div class="form-error">'.implode('<br>', $errors['imagem']).'</div>' : '' ?>
     <small class="help">Formatos aceitos: JPEG, PNG, WEBP ou GIF. Máx: 3 MB.</small>
   </div>
 <?php
@@ -26,7 +28,7 @@ HTML;
 $modal = [
   'id'          => 'modal-add-course',
   'title'       => 'Adicionar curso',
-  'size'        => 'md',           
+  'size'        => 'md',
   'contentHtml' => $formHtml,
   'actionsHtml' => $actionsHtml,
 ];

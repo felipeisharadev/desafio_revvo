@@ -138,6 +138,65 @@
     }
   });
 
+    // Intercepta submits dos modais para AJAX
+  document.addEventListener('submit', async (e) => {
+    const form = e.target.closest('.modal__form');
+    if (!form) return;
+
+    e.preventDefault();
+
+    const action = form.getAttribute('action') || window.location.pathname;
+    const method = (form.getAttribute('method') || 'post').toUpperCase();
+
+    try {
+      const res = await fetch(action, {
+        method,
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+
+      // Sucesso em JSON (store/update)
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        const data = await res.json();
+        if (data.success && data.redirect) {
+          window.location.assign(data.redirect);
+          return;
+        }
+      }
+
+      // 422 com HTML do modal (erros de validação)
+      const html = await res.text();
+
+      // Descobrir qual modal estamos
+      const modalEl = form.closest('.app-modal');
+      if (!modalEl) return;
+
+      // Substituir o modal inteiro pelo HTML novo
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = html;
+
+      const newModal = wrapper.querySelector('.app-modal');
+      if (newModal && newModal.id === modalEl.id) {
+        modalEl.replaceWith(newModal);
+
+        // Reabrir (caso o HTML venha fechado)
+        newModal.hidden = false;
+        newModal.setAttribute('aria-hidden','false');
+        newModal.style.display = '';
+        document.body.style.overflow = 'hidden';
+        return;
+      }
+
+      // Se não veio um modal válido, logar para debug
+      console.warn('Resposta não contém modal compatível. HTML:', html);
+
+    } catch (err) {
+      console.error('Falha na submissão do formulário:', err);
+      alert('Erro inesperado. Tente novamente.');
+    }
+  });
+
 
 
   function escapeHtml(str) {

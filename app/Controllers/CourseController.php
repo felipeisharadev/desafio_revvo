@@ -6,6 +6,11 @@ use App\Core\Database;
 use App\Core\Request;
 use App\Models\Course;
 use App\Services\Csrf;
+use App\Requests\ValidationException;
+use App\Requests\Courses\StoreCourseRequest;
+use App\Requests\Courses\UpdateCourseRequest;
+use App\Support\Upload;
+
 use Throwable;
 
 class CourseController
@@ -14,14 +19,6 @@ class CourseController
     private ViewRendererInterface $renderer;
     private Csrf $csrf;
 
-    private const MAX_IMAGE_BYTES = 3 * 1024 * 1024; 
-    private const MIME_MAP = [
-        'image/jpeg' => 'jpg',
-        'image/png'  => 'png',
-        'image/webp' => 'webp',
-        'image/gif'  => 'gif',
-    ];
-
     public function __construct(ViewRendererInterface $renderer)
     {
         $this->renderer = $renderer;
@@ -29,20 +26,18 @@ class CourseController
         $this->csrf     = new Csrf(); 
     }
 
-public function index(\App\Core\Request $request): string
-{
-    $courses   = $this->course->all();
-    $csrfToken = $this->csrf->token(); 
+    public function index(\App\Core\Request $request): string
+    {
+        $courses   = $this->course->all();
+        $csrfToken = $this->csrf->token(); 
 
-    return $this->renderer->render('courses/index', [
-        'pageTitle' => 'Meus Cursos',
-        'pageClass' => 'courses',
-        'courses'   => $courses,
-        'csrfToken' => $csrfToken,     
-    ]);
-}
-
-
+        return $this->renderer->render('courses/index', [
+            'pageTitle' => 'Meus Cursos',
+            'pageClass' => 'courses',
+            'courses'   => $courses,
+            'csrfToken' => $csrfToken,     
+        ]);
+    }
 
     public function create(Request $request): string
     {
@@ -54,41 +49,59 @@ public function index(\App\Core\Request $request): string
         ]);
     }
 
-    public function store(Request $request): string
-    {
-        try {
-            $this->csrf->assertValid($request->post('csrf'));
+public function store(Request $request): string
+{
+    try {
+        $this->csrf->assertValid($request->post('csrf'));
 
-            $courseName     = $this->requireField($request, 'nome');
-            $courseDesc     = (string)$request->post('descricao');
-            $courseWorkload = $this->optionalInt($request->post('carga_horaria'));
+        $form = new StoreCourseRequest($request);
+        $data = $form->validated();
 
-            Database::beginTransaction();
+        Database::beginTransaction();
 
-            $courseId = $this->course->create([
-                'nome'          => $courseName,
-                'descricao'     => $courseDesc,
-                'carga_horaria' => $courseWorkload,
-                'imagem'        => null,
-            ]);
+        $courseId = $this->course->create([
+            'nome'          => $data['nome'] ?? '',
+            'descricao'     => $data['descricao'] ?? null,
+            'carga_horaria' => $data['carga_horaria'] ?? null,
+            'imagem'        => null,
+        ]);
 
-            $relativePath = $this->handleCourseImageUpload($request->file('imagem'), $courseId);
-            if ($relativePath !== null) {
-                $this->course->updateImage($courseId, $relativePath);
-            }
-
-            Database::commit();
-
-            header('Location: /cursos?created=1');
-            exit;
-        } catch (Throwable $e) {
-            Database::rollBack();
-            http_response_code(500);
-            return $this->renderer->render('debug', [
-                'message' => 'Erro: ' . $e->getMessage(),
-            ]);
+        $file = $form->file('imagem');
+        if ($file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $relativePath = Upload::saveCourseImage($file, $courseId);
+            $this->course->updateImage($courseId, $relativePath);
         }
+
+        Database::commit();
+
+        if (strtolower($request->server['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest') {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['success' => true, 'redirect' => '/cursos?created=1']);
+            exit;
+        }
+
+        header('Location: /cursos?created=1');
+        exit;
+
+    } catch (ValidationException $ve) {
+        http_response_code(422);
+        $csrfToken = $this->csrf->token();
+        return $this->renderer->render('courses/create', [
+            'title'     => 'Criar Novo Curso',
+            'csrfToken' => $csrfToken,
+            'errors'    => $ve->errors,
+            'old'       => $form->old(),
+        ]);
+    } catch (Throwable $e) {
+        Database::rollBack();
+        http_response_code(500);
+        return $this->renderer->render('debug', [
+            'message' => 'Erro: ' . $e->getMessage(),
+        ]);
     }
+}
+
+
 
     public function show(Request $request): string
     {
@@ -173,52 +186,61 @@ public function index(\App\Core\Request $request): string
         try {
             $this->csrf->assertValid($request->post('csrf'));
 
-            // ID via rota
+            // ID via rota (mantendo seu fallback defensivo)
             $id = isset($request->params['id']) ? (int)$request->params['id'] : 0;
-
-            // Fallback defensivo via URL
             if ($id <= 0) {
                 $path     = strtok($request->server['REQUEST_URI'] ?? '/', '?') ?: '/';
                 $segments = array_values(array_filter(explode('/', $path), 'strlen'));
                 $last     = end($segments);
                 $id       = (int)$last;
             }
-
             if ($id <= 0) {
                 throw new \InvalidArgumentException('ID inválido.');
             }
 
-            // Garantir que o curso existe (e obter imagem atual)
             $cursoAtual = $this->course->find($id);
             if (!$cursoAtual) {
                 throw new \RuntimeException('Curso não encontrado.');
             }
 
-            $courseName     = $this->requireField($request, 'nome');
-            $courseDesc     = (string)$request->post('descricao');
-            $courseWorkload = $this->optionalInt($request->post('carga_horaria'));
+            $form = new UpdateCourseRequest($request);
+            $data = $form->validated();
 
             Database::beginTransaction();
 
-            // Atualiza campos básicos
             $this->course->update($id, [
-                'nome'          => $courseName,
-                'descricao'     => $courseDesc,
-                'carga_horaria' => $courseWorkload,
+                'nome'          => $data['nome'] ?? '',
+                'descricao'     => $data['descricao'] ?? null,
+                'carga_horaria' => $data['carga_horaria'] ?? null,
             ]);
 
-            // Upload de imagem é OPCIONAL na edição
-            $newPath = $this->handleCourseImageUpload($request->file('imagem'), $id);
-            if ($newPath !== null) {
-                // se chegou imagem nova, substitui a referência
-                $this->course->updateImage($id, $newPath);
+            $file = $form->file('imagem');
+            if ($file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                $relativePath = Upload::saveCourseImage($file, $id);
+                $this->course->updateImage($id, $relativePath);
             }
-            // se não enviou imagem, preserva imagem atual (nada a fazer)
 
             Database::commit();
 
+            if (strtolower($request->server['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest') {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(['success' => true, 'redirect' => '/cursos?updated=1']);
+                exit;
+            }
+
             header('Location: /cursos?updated=1');
             exit;
+
+        } catch (ValidationException $ve) {
+            http_response_code(422);
+            $csrfToken = $this->csrf->token();
+            return $this->renderer->render('courses/edit', [
+                'title'     => 'Editar Curso',
+                'curso'     => $cursoAtual ?? [],
+                'csrfToken' => $csrfToken,
+                'errors'    => $ve->errors,
+                'old'       => $form->old(),
+            ]);
         } catch (Throwable $e) {
             Database::rollBack();
             http_response_code(500);
@@ -228,108 +250,4 @@ public function index(\App\Core\Request $request): string
         }
     }
 
-    private function requireField(Request $request, string $key): string
-    {
-        $value = trim((string)$request->post($key));
-        if ($value === '') {
-            throw new \InvalidArgumentException("Campo obrigatório: {$key}");
-        }
-        return $value;
-    }
-
-    private function optionalInt(mixed $value): ?int
-    {
-        if ($value === null || $value === '') {
-            return null;
-        }
-        return (int)$value;
-    }
-
-    private function handleCourseImageUpload(?array $file, int $courseId): ?string
-    {
-        // Sem campo de arquivo no formulário
-        if (!$file) {
-            return null;
-        }
-
-        // Quando o input existe, mas nenhum arquivo foi selecionado
-        if (!isset($file['error']) || $file['error'] === UPLOAD_ERR_NO_FILE) {
-            return null; // edição: manter imagem atual
-        }
-
-        // Nome vazio ou tamanho zero → tratar como “nada enviado”
-        if (empty($file['name']) || (int)($file['size'] ?? 0) === 0) {
-            return null;
-        }
-
-        // A partir daqui, de fato houve upload e devemos validar
-        $this->assertUploadOk($file);
-        $this->assertUploadSize((int)$file['size']);
-
-        [, $extension] = $this->detectImageMimeAndExtension($file['tmp_name']);
-
-        $absoluteDirectory   = $this->ensureCourseDirectory($courseId);
-        $filename            = $this->randomName($extension);
-        $absoluteDestination = $absoluteDirectory . $filename;
-
-        $this->moveUploaded($file['tmp_name'], $absoluteDestination);
-
-        return $this->relativePath($courseId, $filename);
-    }
-
-
-    private function assertUploadOk(array $file): void
-    {
-        // Aqui já não consideramos NO_FILE; quem chama filtra isso antes.
-        if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
-            $code = isset($file['error']) ? (string)$file['error'] : 'desconhecido';
-            throw new \RuntimeException('Falha no upload (código ' . $code . ').');
-        }
-    }
-
-
-    private function assertUploadSize(int $bytes): void
-    {
-        if ($bytes > self::MAX_IMAGE_BYTES) {
-            throw new \RuntimeException('Arquivo muito grande (máx. 3 MB).');
-        }
-    }
-
-    private function detectImageMimeAndExtension(string $tmpPath): array
-    {
-        $finfo = new \finfo(FILEINFO_MIME_TYPE);
-        $mime  = $finfo->file($tmpPath) ?: '';
-        $extension = self::MIME_MAP[$mime] ?? null;
-
-        if (!$extension) {
-            throw new \RuntimeException('Formato de imagem não permitido.');
-        }
-        return [$mime, $extension];
-    }
-
-    private function ensureCourseDirectory(int $courseId): string
-    {
-        $absoluteDirectory = rtrim(ROOT_PATH . '/public/uploads/courses/' . $courseId . '/', DIRECTORY_SEPARATOR);
-        if (!is_dir($absoluteDirectory)) {
-            mkdir($absoluteDirectory, 0777, true);
-        }
-        return $absoluteDirectory . DIRECTORY_SEPARATOR;
-    }
-
-    private function randomName(string $extension): string
-    {
-        return bin2hex(random_bytes(16)) . '.' . $extension;
-    }
-
-    private function moveUploaded(string $tmpPath, string $absoluteDestination): void
-    {
-        if (!move_uploaded_file($tmpPath, $absoluteDestination)) {
-            throw new \RuntimeException('Não foi possível salvar o arquivo enviado.');
-        }
-    }
-
-    private function relativePath(int $courseId, string $filename): string
-    {
-        return 'uploads/courses/' . $courseId . '/' . $filename;
-    }
 }
