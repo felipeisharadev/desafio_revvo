@@ -71,22 +71,17 @@ $created = isset($_GET['created']) && $_GET['created'] == '1';
 </section>
 
 <?php
-/**
- * IMPORTANTE:
- * Estes requires injetam os modais no DOM desta página.
- * - create.php gera o <div id="modal-add-course"> com o <form> e o input CSRF
- * - details.php (seu modal de detalhes) gera <div id="modal-details">
- */
+
 require __DIR__ . '/create.php';
 require __DIR__ . '/details.php';
 
 
 ?>
 
-<!-- Se seu JS de modais não gerencia data-modal-open/data-modal-close, este snippet mínimo resolve.
-     Caso já tenha um scripts/assets/js/courses.js que faz isso, pode manter só ele. -->
+<?php
+require __DIR__ . '/../components/onboarding_modal.php';
+?>
 
-
-<script src="/assets/js/modal.js" defer></script>
+<script src="/assets/js/onboarding.js" defer></script>
 <script src="/assets/js/courses.js" defer></script>
 
