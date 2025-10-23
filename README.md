@@ -17,7 +17,7 @@ Projeto PHP puro estruturado em **MVC**, com **autoload PSR-4** via Composer e b
 
 ## ⚙️ Instalação
 
-1. Instalar dependências PHP
+1. Instalar dependências PHP:
 
    ```
    composer install
@@ -28,14 +28,14 @@ Projeto PHP puro estruturado em **MVC**, com **autoload PSR-4** via Composer e b
 
 ## 🗃️ Banco de Dados
 
-O projeto utiliza **SQLite**.
-O arquivo já está criado em:
+O projeto utiliza **SQLite** como banco local padrão.
+O arquivo do banco já está criado em:
 
 ```
 app/Database/database.sqlite
 ```
 
-O caminho é configurado em:
+O caminho é definido em:
 
 ```php
 <?php
@@ -43,6 +43,24 @@ return [
     'database_path' => ROOT_PATH . '/app/Database/database.sqlite',
 ];
 ```
+
+### Criando o banco do zero (opcional)
+
+Se quiser testar a criação completa do banco, basta:
+
+1. Excluir o arquivo `app/Database/database.sqlite`.
+2. Rodar as migrations e seeds:
+
+   ```
+   php scripts/migrate.php
+   php scripts/seed.php
+   ```
+
+Esses comandos irão:
+
+* recriar automaticamente o banco SQLite,
+* executar todos os arquivos `.sql` em `app/Database/migrations/`,
+* e popular os dados iniciais em `Database/seeds/`.
 
 ---
 
@@ -74,7 +92,7 @@ http://localhost:8000
 
 ---
 
-## 💅 (Opcional) Compilar CSS e JS
+## (Opcional) Compilar CSS e JS
 
 Caso precise recompilar os estilos durante o desenvolvimento:
 
@@ -90,6 +108,19 @@ npm run start   # executa o gulp em modo watch
 * O projeto **não utiliza `.env`** — o caminho do banco está definido em `config.database.php`.
 * Se mover o arquivo `database.sqlite`, atualize o campo `database_path` nesse arquivo.
 * As pastas de upload e banco já vêm prontas para uso local.
+* As migrations e seeds estão em:
+
+  ```
+  app/Database/migrations/
+  Database/seeds/
+  ```
+
+  Use:
+
+  ```
+  php scripts/migrate.php
+  php scripts/seed.php
+  ```
 
 ---
 
