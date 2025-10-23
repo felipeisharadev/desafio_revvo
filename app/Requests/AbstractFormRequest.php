@@ -103,6 +103,14 @@ abstract class AbstractFormRequest
                         if ($size > $limit) $this->addError($field, 'Arquivo muito grande.');
                     }
                 }
+
+                if ($rule === 'url' && $value !== null && $value !== '') {
+                    $ok = filter_var($value, FILTER_VALIDATE_URL) && preg_match('#^https?://#i', $value);
+                    if (!$ok) {
+                        $this->addError($field, 'URL inválida. Use http(s)://');
+                    }
+                }
+
             }
         }
 

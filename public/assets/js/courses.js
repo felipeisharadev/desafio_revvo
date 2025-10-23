@@ -1,40 +1,88 @@
 (() => {
   let currentCourseId = null;
   const root = document.querySelector('.container-wide');
-  const placeholderImg = root?.dataset.placeholderImg || '/assets/imgs/course-placeholder.png';
+  const placeholderImg =
+    root?.dataset.placeholderImg || '/assets/imgs/course-placeholder.png';
 
-  document.addEventListener('click', function(e) {
-    const btn = e.target.closest('[data-modal-open="#modal-details"][data-course]');
-    if (!btn) return;
+  // === Função utilitária para escapar HTML ===
+  function escapeHtml(str = '') {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
-    let data;
-    try { data = JSON.parse(btn.getAttribute('data-course')); }
-    catch (err) { console.warn('Erro ao parsear curso:', err); return; }
-
-    currentCourseId = data.id;
-
-    const modal = document.getElementById('modal-details');
-    const content = modal.querySelector('.app-modal__content');
+  // === Renderiza o conteúdo do modal de detalhes ===
+  function renderCourseDetails(course) {
+    const img = course.imagem || placeholderImg;
+    const hasLink = !!(course.link && /^https?:\/\//i.test(course.link));
 
     const html = `
-      <article class="course-details">
+      <section class="course-details">
         <div class="course-details__media">
-          <img src="${escapeHtml(data.imagem || placeholderImg)}"
-               alt="Imagem do curso ${escapeHtml(data.nome || '')}"
+          <img src="${escapeHtml(img)}"
+               alt="Imagem do curso ${escapeHtml(course.nome || 'Curso')}"
                onerror="this.onerror=null; this.src='${placeholderImg}';">
         </div>
+
         <div class="course-details__body">
-          <h4>${escapeHtml(data.nome || 'Curso')}</h4>
-          <p class="muted">${escapeHtml(data.descricao || 'Sem descrição disponível.')}</p>
+          <h4>${escapeHtml(course.nome || 'Curso')}</h4>
+          <p class="muted">${escapeHtml(course.descricao || 'Sem descrição disponível.')}</p>
+
           <dl class="meta">
-            <div><dt>Carga horária</dt><dd>${Number(data.carga_horaria || 0)}h</dd></div>
+            <dt>Carga horária</dt>
+            <dd>${course.carga_horaria ? `${escapeHtml(course.carga_horaria)}h` : '—'}</dd>
+
+            <dt>Slideshow</dt>
+            <dd>
+              ${
+                hasLink
+                  ? `<a href="${escapeHtml(course.link)}" target="_blank" rel="noopener">abrir</a>`
+                  : '<span class="muted">—</span>'
+              }
+            </dd>
           </dl>
         </div>
-      </article>
+      </section>
     `;
-    content.innerHTML = html;
-  }, true);
 
+    const target = document.querySelector('#modal-details .js-details-content');
+    if (target) target.innerHTML = html;
+  }
+
+  // === ABRIR MODAL DE DETALHES ===
+  document.addEventListener(
+    'click',
+    (e) => {
+      const btn = e.target.closest('[data-modal-open="#modal-details"][data-course]');
+      if (!btn) return;
+
+      let course;
+      try {
+        course = JSON.parse(btn.getAttribute('data-course'));
+      } catch (err) {
+        console.warn('Erro ao parsear curso:', err);
+        return;
+      }
+
+      currentCourseId = course.id;
+
+      // Guarda o JSON no modal
+      const modal = document.getElementById('modal-details');
+      if (modal) modal.dataset.course = JSON.stringify(course);
+
+      // Preenche conteúdo ANTES de abrir
+      renderCourseDetails(course);
+
+      // Abre o modal
+      openModal('#modal-details');
+    },
+    true
+  );
+
+  // === EXCLUIR CURSO ===
   document.addEventListener('click', async (e) => {
     const btn = e.target.closest('#delete-course-btn');
     if (!btn) return;
@@ -49,16 +97,21 @@
     try {
       const response = await fetch(`/cursos/delete/${currentCourseId}`, {
         method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
       });
 
       const text = await response.text();
       let result;
-      try { result = JSON.parse(text); }
-      catch { throw new Error('Resposta não-JSON: ' + text); }
+      try {
+        result = JSON.parse(text);
+      } catch {
+        throw new Error('Resposta não-JSON: ' + text);
+      }
 
       if (result.success) {
-        document.querySelector(`.course-card[data-course-id="${currentCourseId}"]`)?.remove();
+        document
+          .querySelector(`.course-card[data-course-id="${currentCourseId}"]`)
+          ?.remove();
 
         const modal = btn.closest('.app-modal');
         if (modal) {
@@ -76,8 +129,7 @@
     }
   });
 
-    // === ABRIR MODAL DE EDIÇÃO A PARTIR DO MODAL DE DETALHES ===
-  // === ABRIR MODAL DE EDIÇÃO A PARTIR DO MODAL DE DETALHES ===
+  // === ABRIR EDIÇÃO A PARTIR DO DETALHES ===
   document.addEventListener('click', async (e) => {
     const btn = e.target.closest('#edit-course-btn');
     if (!btn) return;
@@ -89,7 +141,7 @@
 
     try {
       const res = await fetch(`/cursos/edit/${currentCourseId}`, {
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
       });
 
       if (!res.ok) {
@@ -101,10 +153,10 @@
 
       const html = await res.text();
 
-      // remove modal antigo (se existir)
+      // Remove modal antigo (se existir)
       document.getElementById('modal-edit-course')?.remove();
 
-      // injeta o HTML recebido
+      // Injeta o HTML recebido
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
       const modalEl = tmp.querySelector('#modal-edit-course');
@@ -115,30 +167,29 @@
       }
       document.body.appendChild(modalEl);
 
-      // fecha o modal de detalhes
+      // Fecha o modal de detalhes
       const detailsModal = btn.closest('.app-modal');
       if (detailsModal) {
         detailsModal.hidden = true;
-        detailsModal.setAttribute('aria-hidden','true');
+        detailsModal.setAttribute('aria-hidden', 'true');
         detailsModal.style.display = 'none';
         document.body.style.overflow = '';
       }
 
-      // abre o modal de edição, reaproveitando seu modal.js (data-modal-open)
+      // Abre o modal de edição, reaproveitando modal.js
       const fakeOpen = document.createElement('a');
       fakeOpen.href = '#';
       fakeOpen.setAttribute('data-modal-open', '#modal-edit-course');
       document.body.appendChild(fakeOpen);
       fakeOpen.click();
       fakeOpen.remove();
-
     } catch (err) {
       console.error('Erro ao abrir modal de edição:', err);
       alert('Erro de conexão ao abrir o editor.');
     }
   });
 
-    // Intercepta submits dos modais para AJAX
+  // === INTERCEPTA SUBMITS (CREATE/UPDATE AJAX) ===
   document.addEventListener('submit', async (e) => {
     const form = e.target.closest('.modal__form');
     if (!form) return;
@@ -152,7 +203,7 @@
       const res = await fetch(action, {
         method,
         body: new FormData(form),
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
       });
 
       // Sucesso em JSON (store/update)
@@ -168,11 +219,11 @@
       // 422 com HTML do modal (erros de validação)
       const html = await res.text();
 
-      // Descobrir qual modal estamos
+      // Descobre qual modal estamos
       const modalEl = form.closest('.app-modal');
       if (!modalEl) return;
 
-      // Substituir o modal inteiro pelo HTML novo
+      // Substitui o modal inteiro pelo HTML novo
       const wrapper = document.createElement('div');
       wrapper.innerHTML = html;
 
@@ -180,31 +231,18 @@
       if (newModal && newModal.id === modalEl.id) {
         modalEl.replaceWith(newModal);
 
-        // Reabrir (caso o HTML venha fechado)
+        // Reabre o modal se vier fechado
         newModal.hidden = false;
-        newModal.setAttribute('aria-hidden','false');
+        newModal.setAttribute('aria-hidden', 'false');
         newModal.style.display = '';
         document.body.style.overflow = 'hidden';
         return;
       }
 
-      // Se não veio um modal válido, logar para debug
       console.warn('Resposta não contém modal compatível. HTML:', html);
-
     } catch (err) {
       console.error('Falha na submissão do formulário:', err);
       alert('Erro inesperado. Tente novamente.');
     }
   });
-
-
-
-  function escapeHtml(str) {
-    return String(str)
-      .replaceAll('&','&amp;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;')
-      .replaceAll('"','&quot;')
-      .replaceAll("'",'&#039;');
-  }
 })();

@@ -30,13 +30,14 @@ final class Course
     public function create(array $data): int
     {
         $statement = $this->db()->prepare(
-            'INSERT INTO cursos (nome, descricao, carga_horaria)
-             VALUES (:nome, :descricao, :carga)'
+            'INSERT INTO cursos (nome, descricao, carga_horaria, link)
+            VALUES (:nome, :descricao, :carga, :link)'
         );
         $statement->execute([
             ':nome'      => trim($data['nome'] ?? ''),
             ':descricao' => ($data['descricao'] ?? null),
             ':carga'     => (int)($data['carga_horaria'] ?? 0),
+            ':link'      => ($data['link'] ?? null),
         ]);
         return (int)$this->db()->lastInsertId();
     }
@@ -45,16 +46,18 @@ final class Course
     {
         $statement = $this->db()->prepare(
             'UPDATE cursos
-                SET nome = :nome, descricao = :descricao, carga_horaria = :carga
-              WHERE id = :id'
+                SET nome = :nome, descricao = :descricao, carga_horaria = :carga, link = :link
+            WHERE id = :id'
         );
         $statement->execute([
             ':id'        => $id,
             ':nome'      => trim($data['nome'] ?? ''),
             ':descricao' => ($data['descricao'] ?? null),
             ':carga'     => (int)($data['carga_horaria'] ?? 0),
+            ':link'      => ($data['link'] ?? null),
         ]);
     }
+
 
     public function updateImage(int $id, string $relativePath): void
     {

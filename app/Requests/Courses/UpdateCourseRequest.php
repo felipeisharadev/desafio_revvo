@@ -11,7 +11,8 @@ final class UpdateCourseRequest extends AbstractFormRequest
             'nome'          => 'required|string|max:120',
             'descricao'     => 'nullable|string|max:2000',
             'carga_horaria' => 'required|int|min:1',
-            'imagem'        => 'nullable|image|max_bytes:3145728', 
+            'link'          => 'nullable|string|max:2048|url',
+            'imagem'        => 'nullable|image|max_bytes:3145728',
         ];
     }
 }

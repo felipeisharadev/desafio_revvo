@@ -49,57 +49,58 @@ class CourseController
         ]);
     }
 
-public function store(Request $request): string
-{
-    try {
-        $this->csrf->assertValid($request->post('csrf'));
+    public function store(Request $request): string
+    {
+        try {
+            $this->csrf->assertValid($request->post('csrf'));
 
-        $form = new StoreCourseRequest($request);
-        $data = $form->validated();
+            $form = new StoreCourseRequest($request);
+            $data = $form->validated();
 
-        Database::beginTransaction();
+            Database::beginTransaction();
 
-        $courseId = $this->course->create([
-            'nome'          => $data['nome'] ?? '',
-            'descricao'     => $data['descricao'] ?? null,
-            'carga_horaria' => $data['carga_horaria'] ?? null,
-            'imagem'        => null,
-        ]);
+            $courseId = $this->course->create([
+                'nome'          => $data['nome'] ?? '',
+                'descricao'     => $data['descricao'] ?? null,
+                'carga_horaria' => $data['carga_horaria'] ?? null,
+                'link'          => $data['link'] ?? null,
+                'imagem'        => null,
+            ]);
 
-        $file = $form->file('imagem');
-        if ($file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
-            $relativePath = Upload::saveCourseImage($file, $courseId);
-            $this->course->updateImage($courseId, $relativePath);
-        }
+            $file = $form->file('imagem');
+            if ($file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                $relativePath = Upload::saveCourseImage($file, $courseId);
+                $this->course->updateImage($courseId, $relativePath);
+            }
 
-        Database::commit();
+            Database::commit();
 
-        if (strtolower($request->server['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest') {
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(['success' => true, 'redirect' => '/cursos?created=1']);
+            if (strtolower($request->server['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest') {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(['success' => true, 'redirect' => '/cursos?created=1']);
+                exit;
+            }
+
+            header('Location: /cursos?created=1');
             exit;
+
+        } catch (ValidationException $ve) {
+            http_response_code(422);
+            $csrfToken = $this->csrf->token();
+            return $this->renderer->render('courses/create', [
+                'title'     => 'Criar Novo Curso',
+                'csrfToken' => $csrfToken,
+                'errors'    => $ve->errors,
+                'old'       => $form->old(),
+            ]);
+        } catch (Throwable $e) {
+            Database::rollBack();
+            http_response_code(500);
+            return $this->renderer->render('debug', [
+                'message' => 'Erro: ' . $e->getMessage(),
+            ]);
         }
-
-        header('Location: /cursos?created=1');
-        exit;
-
-    } catch (ValidationException $ve) {
-        http_response_code(422);
-        $csrfToken = $this->csrf->token();
-        return $this->renderer->render('courses/create', [
-            'title'     => 'Criar Novo Curso',
-            'csrfToken' => $csrfToken,
-            'errors'    => $ve->errors,
-            'old'       => $form->old(),
-        ]);
-    } catch (Throwable $e) {
-        Database::rollBack();
-        http_response_code(500);
-        return $this->renderer->render('debug', [
-            'message' => 'Erro: ' . $e->getMessage(),
-        ]);
     }
-}
 
 
 
@@ -212,6 +213,7 @@ public function store(Request $request): string
                 'nome'          => $data['nome'] ?? '',
                 'descricao'     => $data['descricao'] ?? null,
                 'carga_horaria' => $data['carga_horaria'] ?? null,
+                'link'          => $data['link'] ?? null,
             ]);
 
             $file = $form->file('imagem');

@@ -11,7 +11,9 @@ final class StoreCourseRequest extends AbstractFormRequest
             'nome'          => 'required|string|max:120',
             'descricao'     => 'nullable|string|max:2000',
             'carga_horaria' => 'required|int|min:1',
+            'link'          => 'nullable|string|max:2048|url',
             'imagem'        => 'required|image|max_bytes:3145728',
         ];
     }
+
 }

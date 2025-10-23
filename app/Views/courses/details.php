@@ -1,9 +1,6 @@
 <?php
-
 ob_start(); ?>
-<div class="details-placeholder" style="text-align:center; color:#777; padding:2rem;">
-  Selecione um curso para ver os detalhes.
-</div>
+<div class="js-details-content"></div>
 <?php
 $detailsContent = ob_get_clean();
 
@@ -18,6 +15,5 @@ $modal = [
     <button id="delete-course-btn" class="btn btn--danger" type="button">Excluir</button>
   ',
 ];
-
 
 include __DIR__ . '/../components/modal.php';
