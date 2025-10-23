@@ -1,8 +1,3 @@
-<?php
-// app/Views/courses/_form_fields.php
-// Somente campos — sem <form> de abertura/fechamento.
-
-?>
 <div class="form-row">
   <label for="nome">Nome do curso</label>
   <input id="nome" name="nome" type="text" required placeholder="Ex.: PHP Básico">

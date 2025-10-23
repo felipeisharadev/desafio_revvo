@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS cursos (
   nome          TEXT    NOT NULL,
   descricao     TEXT,
   carga_horaria INTEGER NOT NULL DEFAULT 0,
-  imagem        TEXT,                -- nome do arquivo salvo em /public/uploads/cursos
-  link          TEXT,                -- URL do botão/CTA do card/slide
+  imagem        TEXT,                
+  link          TEXT,                
   criado_em     TEXT DEFAULT CURRENT_TIMESTAMP
 );
 

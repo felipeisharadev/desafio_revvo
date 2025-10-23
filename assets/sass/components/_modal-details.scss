@@ -51,35 +51,3 @@
   }
 }
 
-/* botão de abrir modal nos cards */
-.course-card {
-  .card-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 0 16px 16px;
-  }
-
-  .card-link {
-    display: block;
-    width: calc(100% - 32px);
-    margin: 8px auto 16px;
-    text-align: center;
-    background-color: var.$btn-primary;
-    color: #fff;
-    font-weight: 700;
-    padding: .75rem 0;
-    border-radius: 999px;
-    transition: background-color .2s ease, transform .06s ease;
-    border: none;
-
-    &:hover {
-      background-color: var.$color-secondary;
-    }
-
-    &:active {
-      transform: translateY(1px);
-    }
-  }
-}
