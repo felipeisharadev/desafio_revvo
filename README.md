@@ -81,7 +81,7 @@ chmod -R 775 app/Database
 Use o servidor embutido do PHP:
 
 ```
-php -S localhost:8000 -t public public/index.php
+php -S localhost:8000 -t public 
 ```
 
 Depois, acesse no navegador:
