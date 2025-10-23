@@ -1,22 +1,23 @@
 <?php
 $modal = [
   'id'          => 'modal-onboarding',
-  'title'       => 'Bem-vindo(a)!',
-  'size'        => 'sm',
+  'title'       => '',
+  'size'        => 'md',
   'contentHtml' => '
-    <div class="onboarding-content">
-      <p style="margin:0 0 8px 0;">Este é um tour rápido da área de cursos.</p>
-      <ul style="padding-left:18px; margin:0 0 12px 0;">
-        <li>Veja seus cursos no grid.</li>
-        <li>Use “Ver Curso” para detalhes.</li>
-        <li>Adicione novos cursos no botão “+”.</li>
-      </ul>
-      <small class="muted">Dica: você pode fechar com a tecla Esc.</small>
+    <div class="onboarding">
+      <h2 class="onboarding__title">EGESTAS TORTOR VULPUTATE</h2>
+      <p class="onboarding__desc">
+        Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.
+        Donec ullamcorper nulla non metus auctor fringilla. Donec sed odio dui. Cras
+      </p>
+      <div class="onboarding__cta">
+        <button class="btn btn--primary onboarding__btn" type="button" data-modal-close>
+          INSCREVA-SE
+        </button>
+      </div>
     </div>
   ',
-  'actionsHtml' => '
-    <button class="btn btn--primary" type="button" data-modal-close>Entendi</button>
-  ',
+  'actionsHtml' => '',
 ];
 
 include __DIR__ . '/modal.php';
