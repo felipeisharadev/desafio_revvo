@@ -89,10 +89,6 @@ abstract class AbstractFormRequest
                         if (!in_array($type, $accept, true)) {
                             $this->addError($field, 'Formato de imagem inválido.');
                         }
-                    } else {
-                        if (!$nullable && in_array('required', $parts, true)) {
-                            $this->addError($field, 'Campo obrigatório.');
-                        }
                     }
                 }
 

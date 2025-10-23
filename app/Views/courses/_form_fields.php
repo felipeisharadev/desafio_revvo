@@ -19,7 +19,6 @@ function field_errors(array $errors, string $key): string {
        placeholder="Ex.: PHP Básico"
        value="<?= old_val($old, 'nome', $defaults['nome'] ?? '') ?>">
   <?= field_errors($errors, 'nome') ?>
-  <small class="help">Obrigatório.</small>
 </div>
 
 <div class="form-row">
