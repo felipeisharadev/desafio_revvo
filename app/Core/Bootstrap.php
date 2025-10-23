@@ -20,7 +20,7 @@ final class Bootstrap
     private function buildRouter(): SimpleRouter
     {
         $router = new SimpleRouter();
-        require ROOT_PATH . '/config/routes.php'; // popula $router
+        require ROOT_PATH . '/app/Routes/web.php';
         return $router;
     }
 

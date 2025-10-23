@@ -19,14 +19,22 @@ class Application
         $this->router = $router;
         $this->renderer = $renderer;
     }
-
+    
     public function handle(Request $request): string
     {
         $routeInfo = $this->router->dispatch($request->uri, $request->method);
+
         $controllerName = $routeInfo['controller'];
-        $action = $routeInfo['action'];
-        $controller = new $controllerName($this->renderer); 
-        $content = $controller->$action($request); 
-        return $content; 
+        $action         = $routeInfo['action'];
+
+        if (!empty($routeInfo['vars'])) {
+            $request->withRouteParams($routeInfo['vars']);
+        }
+
+        $controller = new $controllerName($this->renderer);
+        $content    = $controller->$action($request);
+
+        return $content;
     }
+
 }

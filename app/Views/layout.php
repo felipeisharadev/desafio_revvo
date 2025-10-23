@@ -20,7 +20,11 @@
     }
     ?>
 
-
+    <style>
+        [hidden] {
+            display: none !important;
+        }
+    </style>
 </head>
 <body class="<?= isset($pageClass) ? htmlspecialchars($pageClass) : '' ?>">
 

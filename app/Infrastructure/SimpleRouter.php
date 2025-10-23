@@ -14,7 +14,7 @@ final class SimpleRouter implements RouterInterface
         $path   = rtrim($path, '/') ?: '/';
 
         if (preg_match_all('#\{([^/]+)\}#', $path, $m)) {
-            $paramNames = $m[1]; // ex.: ['id']
+            $paramNames = $m[1]; 
             $regex = preg_replace('#\{[^/]+\}#', '([^/]+)', $path);
             $regex = '#^' . $regex . '$#';
 
@@ -46,7 +46,7 @@ final class SimpleRouter implements RouterInterface
 
         foreach ($this->routes[$method] ?? [] as $route) {
             if (preg_match($route['regex'], $path, $matches)) {
-                array_shift($matches); // remove match completo
+                array_shift($matches);
                 $vars = [];
                 foreach ($route['params'] as $i => $name) {
                     $vars[$name] = $matches[$i] ?? null;

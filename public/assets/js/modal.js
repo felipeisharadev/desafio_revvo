@@ -3,26 +3,39 @@
   let lastFocused = null;
   let trapHandler = null;
 
-  function openModal(sel) {
-    const modal = document.querySelector(sel);
-    if (!modal) return;
-    lastFocused = document.activeElement;
-    modal.hidden = false;
-    body.style.overflow = 'hidden';
+// === ABRIR MODAL ===
+function openModal(sel) {
+  const modal = document.querySelector(sel);
+  if (!modal) return;
+  lastFocused = document.activeElement;
 
-    const firstField = modal.querySelector('input, textarea, button, [tabindex]:not([tabindex="-1"])');
-    if (firstField) firstField.focus();
+  // abrir visualmente
+  modal.hidden = false;
+  modal.setAttribute('aria-hidden', 'false');
+  modal.style.display = ''; // <-- limpa o display:none inline
 
-    trapFocus(modal);
-  }
+  body.style.overflow = 'hidden';
 
-  function closeModal(modal) {
-    if (!modal) return;
-    modal.hidden = true;
-    body.style.overflow = '';
-    releaseTrap();
-    if (lastFocused) lastFocused.focus();
-  }
+  const firstField = modal.querySelector('input, textarea, button, [tabindex]:not([tabindex="-1"])');
+  if (firstField) firstField.focus();
+
+  trapFocus(modal);
+}
+
+// === FECHAR MODAL (botão X ou backdrop) ===
+function closeModal(modal) {
+  if (!modal) return;
+
+  // fechar visualmente
+  modal.hidden = true;
+  modal.setAttribute('aria-hidden', 'true');
+  modal.style.display = 'none'; // <-- recoloca o display:none inline
+
+  body.style.overflow = '';
+  releaseTrap();
+  if (lastFocused) lastFocused.focus();
+}
+
 
   // === ABRIR MODAL ===
   document.addEventListener('click', (e) => {

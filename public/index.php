@@ -7,7 +7,7 @@ require ROOT_PATH . '/vendor/autoload.php';
 use App\Core\Bootstrap;
 use App\Core\Request;
 
-$request = new Request($_SERVER, $_GET, $_POST);
+$request = new Request($_SERVER, $_GET, $_POST, $_FILES);
 
 try {
     $app = (new Bootstrap())->start();
@@ -15,7 +15,6 @@ try {
 } catch (Throwable $e) {
     http_response_code(500);
 
-    // Detecta AJAX/JSON
     $accept = $request->server['HTTP_ACCEPT'] ?? '';
     $xhr    = strtolower($request->server['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest';
     $wantsJson = $xhr || str_contains($accept, 'application/json');

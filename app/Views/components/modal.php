@@ -1,7 +1,7 @@
 <?php
-// Componente de Modal isolado
+// Componente de Modal isolado (compatível com seu CSS/JS antigos)
 $props = $modal ?? [];
-$id    = $props['id']    ?? 'modal-'.uniqid();
+$id    = $props['id']    ?? ('modal-' . uniqid());
 $title = $props['title'] ?? '';
 $size  = $props['size']  ?? 'md';
 
@@ -9,15 +9,24 @@ $contentHtml = $props['contentHtml'] ?? '';
 $actionsHtml = $props['actionsHtml'] ?? '';
 
 $sizeClass = match ($size) {
-  'sm' => 'app-modal__dialog--sm',
-  'lg' => 'app-modal__dialog--lg',
-  default => 'app-modal__dialog--md',
+  'sm'     => 'app-modal__dialog--sm',
+  'lg'     => 'app-modal__dialog--lg',
+  default  => 'app-modal__dialog--md',
 };
 ?>
-<div class="app-modal" id="<?= htmlspecialchars($id) ?>" role="dialog" aria-modal="true" aria-labelledby="<?= htmlspecialchars($id) ?>-title" hidden>
+<div
+  class="app-modal"
+  id="<?= htmlspecialchars($id) ?>"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="<?= htmlspecialchars($id) ?>-title"
+  aria-hidden="true"
+  hidden
+  style="display:none"
+>
   <div class="app-modal__backdrop" data-modal-close></div>
 
-  <div class="app-modal__dialog <?= $sizeClass ?>" role="document">
+  <div class="app-modal__dialog <?= htmlspecialchars($sizeClass) ?>" role="document" aria-describedby="<?= htmlspecialchars($id) ?>-content">
     <header class="app-modal__header">
       <h3 id="<?= htmlspecialchars($id) ?>-title"><?= htmlspecialchars($title) ?></h3>
       <button class="app-modal__close" type="button" aria-label="Fechar" data-modal-close>
@@ -27,13 +36,16 @@ $sizeClass = match ($size) {
       </button>
     </header>
 
-    <div class="app-modal__content">
-      <?= $contentHtml ?>
+    <div class="app-modal__content" id="<?= htmlspecialchars($id) ?>-content">
+      <?php
+      // NÃO escapar: vem pronto da view (form etc.)
+      echo $contentHtml;
+      ?>
     </div>
 
     <?php if ($actionsHtml): ?>
       <footer class="app-modal__actions">
-        <?= $actionsHtml ?>
+        <?php echo $actionsHtml; ?>
       </footer>
     <?php endif; ?>
   </div>
