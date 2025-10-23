@@ -14,8 +14,10 @@ $modal = [
   'contentHtml' => $detailsContent,
   'actionsHtml' => '
     <button class="btn btn--ghost" type="button" data-modal-close>Fechar</button>
+    <button class="btn btn--secondary" type="button" id="edit-course-btn">Editar</button>
     <button id="delete-course-btn" class="btn btn--danger" type="button">Excluir</button>
   ',
 ];
+
 
 include __DIR__ . '/../components/modal.php';

@@ -76,6 +76,70 @@
     }
   });
 
+    // === ABRIR MODAL DE EDIÇÃO A PARTIR DO MODAL DE DETALHES ===
+  // === ABRIR MODAL DE EDIÇÃO A PARTIR DO MODAL DE DETALHES ===
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('#edit-course-btn');
+    if (!btn) return;
+
+    if (!currentCourseId) {
+      alert('Curso inválido.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/cursos/edit/${currentCourseId}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        console.error('Falha ao carregar edição:', res.status, txt);
+        alert('Não foi possível abrir o editor.');
+        return;
+      }
+
+      const html = await res.text();
+
+      // remove modal antigo (se existir)
+      document.getElementById('modal-edit-course')?.remove();
+
+      // injeta o HTML recebido
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      const modalEl = tmp.querySelector('#modal-edit-course');
+      if (!modalEl) {
+        console.error('Modal de edição não encontrado no HTML retornado.');
+        alert('Erro ao abrir o editor.');
+        return;
+      }
+      document.body.appendChild(modalEl);
+
+      // fecha o modal de detalhes
+      const detailsModal = btn.closest('.app-modal');
+      if (detailsModal) {
+        detailsModal.hidden = true;
+        detailsModal.setAttribute('aria-hidden','true');
+        detailsModal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+
+      // abre o modal de edição, reaproveitando seu modal.js (data-modal-open)
+      const fakeOpen = document.createElement('a');
+      fakeOpen.href = '#';
+      fakeOpen.setAttribute('data-modal-open', '#modal-edit-course');
+      document.body.appendChild(fakeOpen);
+      fakeOpen.click();
+      fakeOpen.remove();
+
+    } catch (err) {
+      console.error('Erro ao abrir modal de edição:', err);
+      alert('Erro de conexão ao abrir o editor.');
+    }
+  });
+
+
+
   function escapeHtml(str) {
     return String(str)
       .replaceAll('&','&amp;')

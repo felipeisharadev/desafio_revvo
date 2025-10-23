@@ -132,6 +132,102 @@ public function index(\App\Core\Request $request): string
         exit;
     }
 
+    public function edit(Request $request): string
+    {
+
+        $id = isset($request->params['id']) ? (int)$request->params['id'] : 0;
+
+        if ($id <= 0) {
+            $path     = strtok($request->server['REQUEST_URI'] ?? '/', '?') ?: '/';
+            $segments = array_values(array_filter(explode('/', $path), 'strlen'));
+            $last     = end($segments);
+            $id       = (int)$last;
+        }
+
+        if ($id <= 0) {
+            http_response_code(400);
+            return $this->renderer->render('debug', [
+                'message' => 'ID inválido para edição.'
+            ]);
+        }
+
+        $curso = $this->course->find($id);
+        if (!$curso) {
+            http_response_code(404);
+            return $this->renderer->render('debug', [
+                'message' => 'Curso não encontrado.'
+            ]);
+        }
+
+        $csrfToken = $this->csrf->token();
+
+        return $this->renderer->render('courses/edit', [
+            'title'     => 'Editar Curso',
+            'curso'     => $curso,
+            'csrfToken' => $csrfToken,
+        ]);
+    }
+
+    public function update(Request $request): string
+    {
+        try {
+            $this->csrf->assertValid($request->post('csrf'));
+
+            // ID via rota
+            $id = isset($request->params['id']) ? (int)$request->params['id'] : 0;
+
+            // Fallback defensivo via URL
+            if ($id <= 0) {
+                $path     = strtok($request->server['REQUEST_URI'] ?? '/', '?') ?: '/';
+                $segments = array_values(array_filter(explode('/', $path), 'strlen'));
+                $last     = end($segments);
+                $id       = (int)$last;
+            }
+
+            if ($id <= 0) {
+                throw new \InvalidArgumentException('ID inválido.');
+            }
+
+            // Garantir que o curso existe (e obter imagem atual)
+            $cursoAtual = $this->course->find($id);
+            if (!$cursoAtual) {
+                throw new \RuntimeException('Curso não encontrado.');
+            }
+
+            $courseName     = $this->requireField($request, 'nome');
+            $courseDesc     = (string)$request->post('descricao');
+            $courseWorkload = $this->optionalInt($request->post('carga_horaria'));
+
+            Database::beginTransaction();
+
+            // Atualiza campos básicos
+            $this->course->update($id, [
+                'nome'          => $courseName,
+                'descricao'     => $courseDesc,
+                'carga_horaria' => $courseWorkload,
+            ]);
+
+            // Upload de imagem é OPCIONAL na edição
+            $newPath = $this->handleCourseImageUpload($request->file('imagem'), $id);
+            if ($newPath !== null) {
+                // se chegou imagem nova, substitui a referência
+                $this->course->updateImage($id, $newPath);
+            }
+            // se não enviou imagem, preserva imagem atual (nada a fazer)
+
+            Database::commit();
+
+            header('Location: /cursos?updated=1');
+            exit;
+        } catch (Throwable $e) {
+            Database::rollBack();
+            http_response_code(500);
+            return $this->renderer->render('debug', [
+                'message' => 'Erro ao atualizar: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
     private function requireField(Request $request, string $key): string
     {
         $value = trim((string)$request->post($key));
@@ -151,12 +247,25 @@ public function index(\App\Core\Request $request): string
 
     private function handleCourseImageUpload(?array $file, int $courseId): ?string
     {
+        // Sem campo de arquivo no formulário
         if (!$file) {
-            return null; 
+            return null;
         }
 
+        // Quando o input existe, mas nenhum arquivo foi selecionado
+        if (!isset($file['error']) || $file['error'] === UPLOAD_ERR_NO_FILE) {
+            return null; // edição: manter imagem atual
+        }
+
+        // Nome vazio ou tamanho zero → tratar como “nada enviado”
+        if (empty($file['name']) || (int)($file['size'] ?? 0) === 0) {
+            return null;
+        }
+
+        // A partir daqui, de fato houve upload e devemos validar
         $this->assertUploadOk($file);
         $this->assertUploadSize((int)$file['size']);
+
         [, $extension] = $this->detectImageMimeAndExtension($file['tmp_name']);
 
         $absoluteDirectory   = $this->ensureCourseDirectory($courseId);
@@ -168,13 +277,16 @@ public function index(\App\Core\Request $request): string
         return $this->relativePath($courseId, $filename);
     }
 
+
     private function assertUploadOk(array $file): void
     {
+        // Aqui já não consideramos NO_FILE; quem chama filtra isso antes.
         if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
             $code = isset($file['error']) ? (string)$file['error'] : 'desconhecido';
             throw new \RuntimeException('Falha no upload (código ' . $code . ').');
         }
     }
+
 
     private function assertUploadSize(int $bytes): void
     {
